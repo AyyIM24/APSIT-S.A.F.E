@@ -1,0 +1,3 @@
+﻿e79953c HEAD@{0}: commit: Save point: Frontend UI and Admin module
+010a580 HEAD@{1}: reset: moving to HEAD
+010a580 HEAD@{2}: clone: from https://github.com/AyyIM24/APSIT-S.A.F.E.git

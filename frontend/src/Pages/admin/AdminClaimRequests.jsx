@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import AdminShell from '../../Components/admin/AdminShell';
 
-// Mock claim data
 const mockClaims = [
   { id: 1, itemName: 'Blue HP Laptop', claimedBy: 'Rahul Sharma', email: 'rahul@apsit.edu.in', proof: 'I lost my blue HP laptop in the library on Feb 14. It has a Batman sticker on the back and my name engraved on the bottom. Serial number: HP-2024-XXXX.', date: '2026-02-15', status: 'pending' },
   { id: 2, itemName: 'iPhone 13', claimedBy: 'Priya Patel', email: 'priya@apsit.edu.in', proof: 'This is my iPhone 13. It has a purple case with flower patterns. The lock screen wallpaper is a photo of my dog. I can provide the IMEI number.', date: '2026-02-14', status: 'pending' },
@@ -24,7 +24,7 @@ const AdminClaimRequests = () => {
   };
 
   return (
-    <>
+    <AdminShell pageTitle="Claim Requests">
       <div className="admin-page-header">
         <h2 className="admin-page-title">Claim Requests</h2>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -145,7 +145,7 @@ const AdminClaimRequests = () => {
           </div>
         </>
       )}
-    </>
+    </AdminShell>
   );
 };
 

@@ -13,7 +13,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
     };
 
     return (
-        <header className="header-main"> 
+        <header className="header-main">
             <div className="title">
                 <img src={logo} alt="Logo"/>
                 <h1>APSIT S.A.F.E</h1>
@@ -23,7 +23,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
 
                     {!isLoggedIn ? (
                         <>
-                            <li><Link to="/Login">Login</Link></li>
+                            <li><Link to="/login">Login</Link></li>
                             <li><Link to="/register">Register</Link></li>
                             <li><Link to="/about">About Us</Link></li>
                             <li><Link to="/howitworks">How It Works</Link></li>

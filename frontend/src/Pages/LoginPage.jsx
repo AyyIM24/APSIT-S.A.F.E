@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from '../Components/Header';
 
-
-const LoginPage = ({ onLogin, user, onLogout, onSearch }) => { 
+const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -15,56 +13,79 @@ const LoginPage = ({ onLogin, user, onLogout, onSearch }) => {
         setError('');
         setLoading(true);
 
-        const credentials = {
-            email: email,
-            password: password
-        };
-
         try {
-            await onLogin(credentials);
-            
+            await onLogin({ email, password });
             setLoading(false);
-            console.log('Login successful!');
-            navigate('/');
-
+            navigate('/discovery');
         } catch (err) {
             setLoading(false);
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                setError('Invalid email or password. Please try again.');
-            } else if (err.response && err.response.data && err.response.data.message) {
-                setError(err.response.data.message);
+                setError('Invalid email or password.');
             } else {
-                setError('Login failed. Please check your connection and try again.');
+                setError('Login failed. Please try again.');
             }
-            console.error(err);
         }
     };
 
     return (
-        <div>
-            <Header user={user} onLogout={onLogout} onSearch={onSearch} />
-            <section id="login">
-                <form onSubmit={handleSubmit}>
-                    <h1> <u>LOGIN</u></h1>
-                    {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-                    
-                    <u><b><label htmlFor="email">EMAIL</label></b></u>
-                    <input type="email" id="email" name="email" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
-                    
-                    <u><b><label htmlFor="password">PASSWORD</label></b></u>
-                    <input type="password" id="password" name="password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
-                    
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Logging in...' : 'Login'}
-                    </button>
-                    <div className='footer'>
-                    <h2>Don't Have An Account?</h2>
-                    <Link to="/register"> Register Here</Link>
-                    <br /><Link to="/forgotpassword">Forgot Password?</Link>
+        <div className="auth-page">
+            <div className="auth-card anim-formRise">
+                <div className="auth-card-header">
+                    <div className="auth-icon">🔐</div>
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your APSIT S.A.F.E account</p>
+                </div>
+
+                {error && (
+                    <div className="auth-error">
+                        <span>⚠️</span> {error}
                     </div>
-                    
+                )}
+
+                <form onSubmit={handleSubmit} className="auth-form">
+                    <div className="auth-field">
+                        <label htmlFor="email">Email Address</label>
+                        <div className="auth-input-wrapper">
+                            <span className="auth-input-icon">📧</span>
+                            <input 
+                                type="email" id="email" 
+                                placeholder="student@apsit.edu.in"
+                                required value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                disabled={loading} 
+                            />
+                        </div>
+                    </div>
+
+                    <div className="auth-field">
+                        <label htmlFor="password">Password</label>
+                        <div className="auth-input-wrapper">
+                            <span className="auth-input-icon">🔒</span>
+                            <input 
+                                type="password" id="password" 
+                                placeholder="Enter your password"
+                                required value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                disabled={loading} 
+                            />
+                        </div>
+                    </div>
+
+                    <button type="submit" className="auth-submit-btn" disabled={loading}>
+                        {loading ? (
+                            <><span className="auth-spinner"></span> Signing in...</>
+                        ) : (
+                            'Sign In →'
+                        )}
+                    </button>
                 </form>
-            </section>
+
+                <div className="auth-footer">
+                    <p>Don't have an account?</p>
+                    <Link to="/register" className="auth-link">Create Account →</Link>
+                    <Link to="/forgotpassword" className="auth-link-muted">Forgot Password?</Link>
+                </div>
+            </div>
         </div>
     );
 };

@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import Header from '../Components/Header';
-import Footer from '../Components/Footer';
 
 const ProfilePage = ({ isLoggedIn, setIsLoggedIn }) => {
-  // Initial user state based on your profile
-  const [userProfile, setUserProfile] = useState({
+  const [userProfile] = useState({
     name: "Ayyan Muqadam",
     email: "student@apsit.edu.in",
     branch: "Information Technology",
@@ -15,47 +12,43 @@ const ProfilePage = ({ isLoggedIn, setIsLoggedIn }) => {
 
   return (
     <div className="report-root">
-      <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      
       <main className="profile-container-main">
-        <div className="profile-card-aesthetic">
-          <div className="profile-banner"></div>
+        <div className="profile-card-aesthetic anim-cardReveal">
+          <div className="profile-banner" />
           
           <div className="profile-content">
-            <div className="profile-avatar-large">
+            <div className="profile-avatar-large anim-avatarSpring">
               {userProfile.name.charAt(0)}
             </div>
             
             <div className="profile-header-text">
               <h2>{userProfile.name}</h2>
-              <p className="branch-tag">{userProfile.branch} Engineer</p>
+              <p className="branch-tag">🎓 {userProfile.branch} · {userProfile.year}</p>
             </div>
 
             <div className="profile-details-grid">
-              <div className="detail-item-box">
-                <label>Email Address</label>
+              <div className="detail-item-box anim-cardReveal" style={{ animationDelay: '0.1s' }}>
+                <label>📧 Email Address</label>
                 <span>{userProfile.email}</span>
               </div>
-              <div className="detail-item-box">
-                <label>Phone Number</label>
+              <div className="detail-item-box anim-cardReveal" style={{ animationDelay: '0.17s' }}>
+                <label>📱 Phone Number</label>
                 <span>{userProfile.phone}</span>
               </div>
-              <div className="detail-item-box">
-                <label>Year of Study</label>
+              <div className="detail-item-box anim-cardReveal" style={{ animationDelay: '0.24s' }}>
+                <label>📅 Year of Study</label>
                 <span>{userProfile.year}</span>
               </div>
-              <div className="detail-item-box">
-                <label>Roll Number</label>
+              <div className="detail-item-box anim-cardReveal" style={{ animationDelay: '0.31s' }}>
+                <label>🆔 Roll Number</label>
                 <span>{userProfile.rollNo}</span>
               </div>
             </div>
 
-            <button className="edit-profile-btn">Edit Profile Settings</button>
+            <button className="edit-profile-btn">✏️ Edit Profile Settings</button>
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

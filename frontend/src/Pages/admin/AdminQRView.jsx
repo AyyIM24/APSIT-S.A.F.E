@@ -1,49 +1,66 @@
 import React, { useRef } from 'react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 
-const AdminQRView = ({ item, onClose }) => {
-  const qrCardRef = useRef(null);
+/**
+ * AdminQRView — PRD §11.6
+ * QR code generator and print/download view for found items.
+ */
+
+const mockItems = [
+  { id: 1, name: "Blue HP Laptop", location: "Library 2nd Floor", date: "2026-02-14", image: "/images/Img 1.jpg" },
+  { id: 2, name: "iPhone 13", location: "Canteen", date: "2026-02-13", image: "/images/Img 2.jpg" },
+  { id: 3, name: "APSIT ID Card", location: "Lab 402", date: "2026-02-12", image: "/images/Img 3.jpeg" },
+  { id: 4, name: "Blue Umbrella", location: "Main Gate", date: "2026-02-11", image: "" },
+  { id: 6, name: "Calculator", location: "Lab 401", date: "2026-02-09", image: "" },
+];
+
+const AdminQRView = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const printRef = useRef();
+
+  const item = mockItems.find(i => i.id === parseInt(id));
+
+  if (!item) {
+    return (
+      <div style={{ textAlign: 'center', padding: '100px', color: '#120058' }}>
+        <h2>Item Not Found</h2>
+        <button className="admin-add-btn" onClick={() => navigate(-1)} style={{ marginTop: '20px' }}>← Go Back</button>
+      </div>
+    );
+  }
 
   const qrUrl = `https://apsit-safe.edu.in/item/${item.id}`;
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleDownload = async () => {
-    if (!qrCardRef.current) return;
-    try {
-      const canvas = await html2canvas(qrCardRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-      });
+    if (printRef.current) {
+      const canvas = await html2canvas(printRef.current);
       const link = document.createElement('a');
       link.download = `item-${item.id}-qr.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-    } catch (err) {
-      console.error('Download failed:', err);
     }
   };
 
   return (
-    <div className="admin-modal-overlay" onClick={onClose}>
-      <div className="qr-modal-card" ref={qrCardRef} onClick={(e) => e.stopPropagation()}>
+    <div className="admin-modal-overlay">
+      <div className="qr-modal-card qr-print-area" ref={printRef}>
         {item.image && (
-          <div style={{
-            width: '80px', height: '80px', borderRadius: '16px', overflow: 'hidden',
-            margin: '0 auto 12px', boxShadow: '0 4px 15px rgba(18,0,88,0.15)'
-          }}>
-            <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
+          <img
+            src={item.image}
+            alt={item.name}
+            style={{ width: '80px', height: '80px', borderRadius: '16px', objectFit: 'cover', marginBottom: '12px' }}
+          />
         )}
+        <h3 style={{ color: '#120058', fontWeight: 800, marginBottom: '4px', fontSize: '1.3rem' }}>{item.name}</h3>
+        <p style={{ color: '#764ba2', fontSize: '14px', marginBottom: '24px' }}>
+          📍 {item.location} · 📅 {item.date}
+        </p>
 
-        <h3>{item.name}</h3>
-        <p>📍 {item.location} · 📅 {item.date}</p>
-
-        <div className="qr-wrapper" style={{ margin: '20px auto' }}>
-          <QRCodeCanvas
+        <div className="qr-wrapper">
+          <QRCodeSVG
             value={qrUrl}
             size={200}
             fgColor="#120058"
@@ -52,27 +69,26 @@ const AdminQRView = ({ item, onClose }) => {
           />
         </div>
 
-        <p style={{ fontSize: '15px', color: '#120058', fontWeight: '600' }}>
+        <p style={{ color: '#764ba2', fontSize: '14px', marginTop: '20px', fontWeight: 600 }}>
           Scan to claim this item
         </p>
-        <p style={{ fontSize: '12px', color: '#a68ada', fontWeight: '700', letterSpacing: '1px' }}>
+        <p style={{ color: '#120058', fontWeight: 800, fontSize: '16px', margin: '4px 0 0' }}>
           APSIT S.A.F.E
         </p>
 
-        <div className="qr-btn-row">
-          <button className="qr-btn-primary" onClick={handlePrint}>🖨️ Print Label</button>
-          <button className="qr-btn-outline" onClick={handleDownload}>⬇️ Download</button>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'center' }}
+          className="no-print">
+          <button className="admin-add-btn" onClick={() => window.print()}>🖨️ Print QR Label</button>
+          <button className="export-btn" onClick={handleDownload}>📥 Download</button>
         </div>
-
-        <button
-          onClick={onClose}
-          style={{
-            marginTop: '12px', background: 'none', border: 'none',
-            color: '#764ba2', cursor: 'pointer', fontSize: '14px', fontWeight: '600'
-          }}
-        >
-          Close
-        </button>
+        <div className="no-print" style={{ marginTop: '12px' }}>
+          <button
+            style={{ background: 'none', border: 'none', color: '#764ba2', cursor: 'pointer', fontWeight: 600 }}
+            onClick={() => navigate(-1)}
+          >
+            ← Back
+          </button>
+        </div>
       </div>
     </div>
   );
