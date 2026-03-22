@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useContext } from 'react';
 import * as THREE from 'three';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 /**
  * ThreeBackground — Three.js floating icosahedron particles with mouse parallax
@@ -8,6 +9,7 @@ import * as THREE from 'three';
  */
 const ThreeBackground = () => {
   const mountRef = useRef(null);
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -26,14 +28,17 @@ const ThreeBackground = () => {
     const popupGroup = new THREE.Group();
     scene.add(popupGroup);
 
-    const purpleLight = new THREE.PointLight(0x764ba2, 2, 100);
+    const purpleLightColor = theme === 'light' ? 0xc084fc : 0x764ba2;
+    const purpleLight = new THREE.PointLight(purpleLightColor, 2, 100);
     purpleLight.position.set(10, 10, 20);
     scene.add(purpleLight);
 
-    const ambientLight = new THREE.AmbientLight(0x667eea, 0.6);
+    const ambientLightColor = theme === 'light' ? 0xd8b4fe : 0x667eea;
+    const ambientLight = new THREE.AmbientLight(ambientLightColor, 0.6);
     scene.add(ambientLight);
 
-    const blueLight = new THREE.PointLight(0x667eea, 1.5, 80);
+    const blueLightColor = theme === 'light' ? 0xe9d5ff : 0x667eea;
+    const blueLight = new THREE.PointLight(blueLightColor, 1.5, 80);
     blueLight.position.set(-15, -10, 15);
     scene.add(blueLight);
 
@@ -43,7 +48,9 @@ const ThreeBackground = () => {
 
     // Create particles
     const particleCount = 90 + Math.floor(Math.random() * 30);
-    const colors = [0x667eea, 0x764ba2, 0xa68ada, 0xcdc6ea];
+    const colors = theme === 'light' 
+      ? [0xd8b4fe, 0xc084fc, 0xe9d5ff, 0xf3f0ff]
+      : [0x667eea, 0x764ba2, 0xa68ada, 0xcdc6ea];
     const particles = [];
 
     for (let i = 0; i < particleCount; i++) {
@@ -155,7 +162,7 @@ const ThreeBackground = () => {
       renderer.dispose();
       particles.forEach(p => { p.geometry.dispose(); p.material.dispose(); });
     };
-  }, []);
+  }, [theme]);
 
   return (
     <div

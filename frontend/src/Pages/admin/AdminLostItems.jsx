@@ -38,7 +38,7 @@ const AdminLostItems = () => {
               {item.image && <img src={item.image} alt={item.name} className="item-img-render" />}
               <span className="status-badge" style={{ background: '#dc3545' }}>{item.status}</span>
             </div>
-            <div className="card-info" style={{ background: 'rgba(102,126,234,0.15)' }}>
+            <div className="card-info" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>
               <h4 style={{ color: '#120058', marginBottom: '8px' }}>{item.name}</h4>
               <p style={{ color: '#764ba2', fontSize: '14px' }}>📍 {item.location}</p>
               <p style={{ color: '#764ba2', fontSize: '14px' }}>📅 {item.date}</p>

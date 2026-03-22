@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ThemeContext } from '../contexts/ThemeContext';
 import logo from '../Logo.png';
 
 function Header({ isLoggedIn, setIsLoggedIn }) {
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useContext(ThemeContext);
 
     const handleLogout = () => {
         setIsLoggedIn(false);
@@ -19,6 +21,11 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                 <h1>APSIT S.A.F.E</h1>
                 
                 <ul>
+                    <li className="theme-toggle-item">
+                        <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
+                            {theme === 'dark' ? '☀️' : '🌙'}
+                        </button>
+                    </li>
                     <li><Link to={isLoggedIn ? "/discovery" : "/"}>Home</Link></li>
 
                     {!isLoggedIn ? (

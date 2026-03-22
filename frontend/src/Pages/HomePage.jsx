@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { ThemeContext } from '../contexts/ThemeContext';
 import logo from '../Logo.png';
 
 function HomePage() {
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   return (
     <div className="home-dark">
@@ -24,7 +26,10 @@ function HomePage() {
         {/* Header Banner */}
         <div className="home-header-banner anim-fadeScale">
           <img src={logo} alt="APSIT Logo" />
-          <h1>APSIT S.A.F.E</h1>
+          <h1 style={{ flex: 1 }}>APSIT S.A.F.E</h1>
+          <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
         </div>
 
         {/* Welcome Info Section */}

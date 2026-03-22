@@ -283,7 +283,7 @@
 .admin-main-new {
   margin-left: 260px;
   flex: 1;
-  background: #cdc6ea;
+  background: transparent;
   min-height: 100vh;
   padding: 30px;
 }
@@ -492,7 +492,7 @@
 .admin-page-title {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #120058;
+  color: white;
 }
 
 /* Admin Add Button */
@@ -1302,4 +1302,70 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================
+   ADMIN DARK THEME DEFAULTS
+   Converts the light-themed Admin cards to glassmorphic dark theme
+   ============================================================ */
+.admin-topbar, .admin-stat-card, .admin-chart-card, .admin-table, .admin-category-item {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white;
+}
+
+.admin-topbar-title, .admin-topbar-name, .admin-stat-number, .admin-chart-title, .admin-location-name, .admin-table td, .admin-category-name, .admin-category-count {
+  color: white;
+}
+
+.admin-stat-label, .admin-modal-form label {
+  color: rgba(255,255,255,0.7);
+}
+
+.admin-location-bar-bg, .admin-stacked-bar-bg, .admin-category-count, .proof-drawer-close {
+  background: rgba(255,255,255,0.1);
+}
+
+.admin-table td {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-table tr:hover, .admin-category-item:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.proof-drawer, .admin-modal-card, .qr-modal-card {
+  background: rgba(30,15,80,0.95);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.proof-drawer-title, .admin-modal-title {
+  color: white;
+}
+
+.admin-modal-form input, .admin-modal-form select, .admin-modal-form textarea, .admin-add-category-row input, .admin-search-bar {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white;
+}
+
+.admin-search-bar input {
+  color: white;
+  background: transparent;
+}
+
+.admin-search-bar input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.admin-item-grid .card-info {
+  background: rgba(255,255,255,0.06) !important;
+}
+.admin-item-grid .card-info h4 {
+  color: white !important;
+}
+.admin-item-grid .card-info p {
+  color: rgba(255,255,255,0.7) !important;
 }
