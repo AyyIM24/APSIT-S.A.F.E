@@ -44,9 +44,9 @@
 * **MySQL** Server running at port `3306`
 
 ### 1️⃣ Database Setup
-Create the MySQL database named `nakshetra`:
+Create the MySQL database named `apsit_safe`:
 ```sql
-CREATE DATABASE nakshetra;
+CREATE DATABASE apsit_safe;
 ```
 
 ### 2️⃣ Start Backend Server
