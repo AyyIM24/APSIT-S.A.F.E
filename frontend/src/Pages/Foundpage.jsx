@@ -29,6 +29,17 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
     setIsSubmitting(true);
     
     try {
+      // Upload image first if one was selected
+      let imageUrl = null;
+      if (formData.image) {
+        const imgForm = new FormData();
+        imgForm.append('file', formData.image);
+        const uploadRes = await api.post('/upload', imgForm, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        imageUrl = uploadRes.data.url;
+      }
+
       // Create request payload mapped to backend ItemRequest
       const reqPayload = {
         itemName: formData.itemName,
@@ -36,6 +47,7 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
         location: formData.location,
         date: formData.date,
         description: formData.description,
+        imageUrl: imageUrl,
         contactName: formData.contactName,
         contactPhone: formData.contactPhone,
         contactEmail: formData.contactEmail
@@ -65,6 +77,20 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
               <div className="success-icon">✅</div>
               <h3>Thank You!</h3>
               <p>This item is now listed. The owner will reach out soon.</p>
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.5, type: 'spring' }}
+                style={{ marginTop: '20px' }}
+              >
+                <button 
+                  className="btn-gradient-card"
+                  onClick={() => window.location.href = '/discovery'}
+                  style={{ padding: '12px 30px' }}
+                >
+                  Return to Discovery Hub
+                </button>
+              </motion.div>
             </motion.div>
           ) : (
             <>
@@ -110,7 +136,7 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
                         onDrop={e => { e.preventDefault(); setFormData({...formData, image: e.dataTransfer.files[0]}); }}>
                         <div className="upload-icon">📷</div>
                         <p>Drag & drop image or <strong>browse</strong></p>
-                        <input type="file" name="image" className="file-input"
+                        <input type="file" name="image" accept="image/*" className="file-input"
                           onChange={e => setFormData({...formData, image: e.target.files[0]})} />
                         {formData.image && <img src={URL.createObjectURL(formData.image)} className="upload-preview" alt="preview" />}
                       </div>
@@ -154,7 +180,7 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
                       <div className="form-row">
                         <div className="input-group">
                           <label>📱 Phone Number</label>
-                          <input type="text" name="contactPhone" placeholder="+91 8591XXXXXX" required onChange={handleChange} value={formData.contactPhone} />
+                          <input type="text" name="contactPhone" placeholder="+91 XXXXXXXXXX" required onChange={handleChange} value={formData.contactPhone} />
                         </div>
                         <div className="input-group">
                           <label>📧 Email Address</label>
@@ -171,7 +197,9 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
                       </div>
                       <div className="btn-row">
                         <button type="button" className="btn-back" onClick={goBack}>← Back</button>
-                        <button type="submit" className="submit-btn-gradient">✓ Submit Report</button>
+                        <button type="submit" className="submit-btn-gradient" disabled={isSubmitting}>
+                          {isSubmitting ? '⏳ Submitting...' : '✓ Submit Report'}
+                        </button>
                       </div>
                     </motion.div>
                   )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import './styles.css';
@@ -10,6 +10,7 @@ import CustomCursor from './Components/CustomCursor';
 import PageTransitionWrapper from './Components/PageTransitionWrapper';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
+import { ProtectedRoute, AdminRoute } from './Components/ProtectedRoute';
 
 // Student Pages
 import HomePage from './Pages/HomePage';
@@ -21,6 +22,7 @@ import MyReports from './Pages/Myreport';
 import ProfilePage from './Pages/Profilepage';
 import ReportItem from './Pages/ReportItem';
 import Foundpage from './Pages/Foundpage';
+import NotFoundPage from './Pages/NotFoundPage';
 
 // Admin Pages
 import AdminLoginPage from './Pages/admin/AdminLoginPage';
@@ -43,11 +45,18 @@ function AppContent() {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHomePage = location.pathname === '/';
 
+  // Listen for auth:logout events dispatched by the 401 interceptor
+  useEffect(() => {
+    const handleLogout = () => {
+      setIsLoggedIn(false);
+    };
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, []);
+
   const handleLogin = async (credentials) => {
-    // Left empty here, actual login happens in LoginPage now
     setIsLoggedIn(true);
   };
-
 
   return (
     <>
@@ -61,28 +70,35 @@ function AppContent() {
 
         <PageTransitionWrapper>
           <Routes>
-            {/* Student Routes */}
+            {/* Public Student Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage onLogin={handleLogin} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />} />
             <Route path="/register" element={<RegisterPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/discovery" element={<DiscoveryHub isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/item/:id" element={<ItemDetail isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
-            <Route path="/myreports" element={<MyReports isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
-            <Route path="/profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
-            <Route path="/report" element={<ReportItem isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
-            <Route path="/found" element={<Foundpage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
 
-            {/* Admin Routes */}
+            {/* Protected Student Routes */}
+            <Route path="/myreports" element={<ProtectedRoute><MyReports isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} /></ProtectedRoute>} />
+            <Route path="/report" element={<ProtectedRoute><ReportItem isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} /></ProtectedRoute>} />
+            <Route path="/found" element={<ProtectedRoute><Foundpage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} /></ProtectedRoute>} />
+
+            {/* Admin Login (public) */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/lost" element={<AdminLostItems />} />
-            <Route path="/admin/found" element={<AdminFoundItems />} />
-            <Route path="/admin/claims" element={<AdminClaimRequests />} />
-            <Route path="/admin/admins" element={<AdminAdmins />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/reports" element={<AdminReports />} />
-            <Route path="/admin/categories" element={<AdminCategories />} />
-            <Route path="/admin/item/:id/qr" element={<AdminQRView />} />
+
+            {/* Protected Admin Routes */}
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/admin/lost" element={<AdminRoute><AdminLostItems /></AdminRoute>} />
+            <Route path="/admin/found" element={<AdminRoute><AdminFoundItems /></AdminRoute>} />
+            <Route path="/admin/claims" element={<AdminRoute><AdminClaimRequests /></AdminRoute>} />
+            <Route path="/admin/admins" element={<AdminRoute><AdminAdmins /></AdminRoute>} />
+            <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+            <Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />
+            <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
+            <Route path="/admin/item/:id/qr" element={<AdminRoute><AdminQRView /></AdminRoute>} />
+
+            {/* 404 Catch-All */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </PageTransitionWrapper>
 

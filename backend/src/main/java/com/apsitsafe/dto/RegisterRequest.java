@@ -2,6 +2,7 @@ package com.apsitsafe.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -13,6 +14,8 @@ public class RegisterRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@apsit\\.edu\\.in$",
+             message = "Only @apsit.edu.in email addresses are allowed")
     private String email;
 
     @NotBlank(message = "Password is required")

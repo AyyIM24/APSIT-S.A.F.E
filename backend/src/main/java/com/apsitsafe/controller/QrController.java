@@ -4,6 +4,7 @@ import com.apsitsafe.model.ClaimRequest;
 import com.apsitsafe.service.ClaimService;
 import com.apsitsafe.service.QrService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +23,9 @@ public class QrController {
 
     @Autowired
     private ClaimService claimService;
+
+    @Value("${app.qr.base-url:http://localhost:3000}")
+    private String qrBaseUrl;
 
     /**
      * Generate QR code image (PNG) for an approved claim.
@@ -52,9 +56,10 @@ public class QrController {
                 ));
             }
 
-            // Build the QR content — a verification URL
+            // Build the QR content — a verification URL using configurable base URL
             String qrContent = String.format(
-                    "https://apsit-safe.edu.in/verify/%s|ITEM:%s|CLAIMANT:%s|TOKEN:%s",
+                    "%s/verify/%s|ITEM:%s|CLAIMANT:%s|TOKEN:%s",
+                    qrBaseUrl,
                     claim.getPickupToken(),
                     claim.getItem().getItemName(),
                     claim.getClaimedByName(),
@@ -86,7 +91,7 @@ public class QrController {
     public ResponseEntity<?> generateQrForItem(@PathVariable Long itemId,
                                                 @RequestParam(defaultValue = "300") int size) {
         try {
-            String qrContent = String.format("https://apsit-safe.edu.in/item/%d", itemId);
+            String qrContent = String.format("%s/item/%d", qrBaseUrl, itemId);
             byte[] qrImage = qrService.generateQrCode(qrContent, size, size);
 
             HttpHeaders headers = new HttpHeaders();

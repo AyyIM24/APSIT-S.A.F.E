@@ -6,6 +6,10 @@ import com.apsitsafe.model.User;
 import com.apsitsafe.repository.ItemRepository;
 import com.apsitsafe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -37,6 +41,19 @@ public class ItemService {
         String searchFilter = (search == null || search.isBlank()) ? null : search;
 
         return itemRepository.findWithFilters(typeFilter, categoryFilter, locationFilter, searchFilter);
+    }
+
+    /**
+     * Paginated version of getFilteredItems (Issue #15)
+     */
+    public Page<Item> getFilteredItemsPaged(String type, String category, String location, String search, int page, int size) {
+        String typeFilter = (type == null || type.equalsIgnoreCase("all")) ? null : type.toUpperCase();
+        String categoryFilter = (category == null || category.equalsIgnoreCase("all")) ? null : category;
+        String locationFilter = (location == null || location.equalsIgnoreCase("all")) ? null : location;
+        String searchFilter = (search == null || search.isBlank()) ? null : search;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return itemRepository.findWithFiltersPaged(typeFilter, categoryFilter, locationFilter, searchFilter, pageable);
     }
 
     public Item reportLostItem(ItemRequest request, Long userId) {

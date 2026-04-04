@@ -29,6 +29,7 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reportType, setReportType] = useState('lost'); // 'lost' or 'found'
   const [formData, setFormData] = useState({
     itemName: '', category: '', location: '',
     date: '', description: '', image: null,
@@ -44,6 +45,17 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
     setIsSubmitting(true);
     
     try {
+      // Upload image first if one was selected
+      let imageUrl = null;
+      if (formData.image) {
+        const imgForm = new FormData();
+        imgForm.append('file', formData.image);
+        const uploadRes = await api.post('/upload', imgForm, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        imageUrl = uploadRes.data.url;
+      }
+
       // Create request payload mapped to backend ItemRequest
       const reqPayload = {
         itemName: formData.itemName,
@@ -51,21 +63,26 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
         location: formData.location,
         date: formData.date,
         description: formData.description,
+        imageUrl: imageUrl,
         contactName: formData.contactName,
         contactPhone: formData.contactPhone,
         contactEmail: formData.contactEmail
       };
       
-      const response = await api.post('/items/lost', reqPayload);
-      console.log("Lost item reported successfully", response.data);
+      // Post to appropriate endpoint based on report type
+      const endpoint = reportType === 'found' ? '/items/found' : '/items/lost';
+      const response = await api.post(endpoint, reqPayload);
+      console.log(`${reportType} item reported successfully`, response.data);
       setSubmitted(true);
     } catch (err) {
-      console.error("Failed to report lost item", err);
+      console.error(`Failed to report ${reportType} item`, err);
       alert("Failed to submit report. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const isLost = reportType === 'lost';
 
   return (
     <div className="report-root">
@@ -126,7 +143,10 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 2.1, duration: 0.4 }}
               >
-                We'll notify you when someone finds your item.
+                {isLost 
+                  ? "We'll notify you when someone finds your item." 
+                  : "This item is now listed. The owner will reach out soon."
+                }
               </motion.p>
               
               <motion.div
@@ -146,8 +166,58 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
             </motion.div>
           ) : (
             <>
-              <h3>Report Lost Item</h3>
-              <p className="form-subtitle">Help reunite a student with their belonging.</p>
+              {/* Report Type Toggle */}
+              <div style={{ 
+                display: 'flex', 
+                borderRadius: '12px', 
+                overflow: 'hidden', 
+                marginBottom: '24px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.03)'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setReportType('lost')}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    transition: 'all 0.3s ease',
+                    background: isLost ? 'linear-gradient(135deg, #ff6b6b, #ee5a24)' : 'transparent',
+                    color: isLost ? 'white' : 'rgba(255,255,255,0.5)',
+                  }}
+                >
+                  🔴 Report Lost Item
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReportType('found')}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    transition: 'all 0.3s ease',
+                    background: !isLost ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'transparent',
+                    color: !isLost ? 'white' : 'rgba(255,255,255,0.5)',
+                  }}
+                >
+                  🟢 Report Found Item
+                </button>
+              </div>
+
+              <h3>Report {isLost ? 'Lost' : 'Found'} Item</h3>
+              <p className="form-subtitle">
+                {isLost 
+                  ? "Help reunite a student with their belonging." 
+                  : "List a found item so the owner can reclaim it."
+                }
+              </p>
 
               <WizardProgress currentStep={currentStep} stepLabels={["Item Details", "Location & Date", "Contact & Submit"]} />
 
@@ -158,7 +228,7 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
                       initial="enter" animate="center" exit="exit">
                       <div className="input-group">
                         <label>Item Name</label>
-                        <input type="text" name="itemName" placeholder="e.g. Blue HP Laptop" required onChange={handleChange} value={formData.itemName} />
+                        <input type="text" name="itemName" placeholder={isLost ? "e.g. Blue HP Laptop" : "e.g. Black Wallet"} required onChange={handleChange} value={formData.itemName} />
                       </div>
                       <div className="form-row">
                         <div className="input-group">
@@ -175,7 +245,7 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
                           </select>
                         </div>
                         <div className="input-group">
-                          <label>📅 Lost Date</label>
+                          <label>📅 {isLost ? 'Lost' : 'Found'} Date</label>
                           <input type="date" name="date" required onChange={handleChange} value={formData.date} />
                         </div>
                       </div>
@@ -188,7 +258,7 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
                         onDrop={e => { e.preventDefault(); setFormData({...formData, image: e.dataTransfer.files[0]}); }}>
                         <div className="upload-icon">📷</div>
                         <p>Drag & drop image or <strong>browse</strong></p>
-                        <input type="file" name="image" className="file-input"
+                        <input type="file" name="image" accept="image/*" className="file-input"
                           onChange={e => setFormData({...formData, image: e.target.files[0]})} />
                         {formData.image && <img src={URL.createObjectURL(formData.image)} className="upload-preview" alt="preview" />}
                       </div>
@@ -236,7 +306,7 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
                       <div className="form-row">
                         <div className="input-group">
                           <label>📱 Phone Number</label>
-                          <input type="text" name="contactPhone" placeholder="+91 8591XXXXXX" required onChange={handleChange} value={formData.contactPhone} />
+                          <input type="text" name="contactPhone" placeholder="+91 XXXXXXXXXX" required onChange={handleChange} value={formData.contactPhone} />
                         </div>
                         <div className="input-group">
                           <label>📧 Email Address</label>
@@ -244,12 +314,20 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
                         </div>
                       </div>
                       <div className="confirm-check">
-                        <input type="checkbox" id="confirm-lost" required />
-                        <label htmlFor="confirm-lost">I confirm this report is genuine and accurate</label>
+                        <input type="checkbox" id="confirm-report" required />
+                        <label htmlFor="confirm-report">I confirm this report is genuine and accurate</label>
                       </div>
+                      {!isLost && (
+                        <div className="confirm-check">
+                          <input type="checkbox" id="safekeep" required />
+                          <label htmlFor="safekeep">I will keep this item safe until the owner is verified</label>
+                        </div>
+                      )}
                       <div className="btn-row">
                         <button type="button" className="btn-back" onClick={goBack}>← Back</button>
-                        <button type="submit" className="submit-btn-gradient">✓ Submit Report</button>
+                        <button type="submit" className="submit-btn-gradient" disabled={isSubmitting}>
+                          {isSubmitting ? '⏳ Submitting...' : '✓ Submit Report'}
+                        </button>
                       </div>
                     </motion.div>
                   )}

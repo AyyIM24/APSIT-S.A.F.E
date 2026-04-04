@@ -22,6 +22,30 @@ api.interceptors.request.use(
   }
 );
 
+// Response interceptor to handle 401 token expiry (Issue #7)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Don't redirect if we're already on a login/register page
+      const currentPath = window.location.pathname;
+      const isAuthPage = currentPath === '/login' || currentPath === '/register' || currentPath === '/admin/login';
+
+      if (!isAuthPage) {
+        // Clear auth data
+        authService.clearAuth();
+
+        // Dispatch custom event so App.js can update isLoggedIn state
+        window.dispatchEvent(new CustomEvent('auth:logout'));
+
+        // Redirect to login
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Auth utility functions
 export const authService = {
   // Save token and role

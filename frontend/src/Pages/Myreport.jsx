@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
 const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
   const [myReports, setMyReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -31,7 +33,7 @@ const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
         
         {!loading && (
           <>
-            {/* Stats */}
+            {/* Stats — using actual backend statuses: LOST, FOUND, SECURED, RESOLVED */}
             <div style={{ 
               display: 'flex', gap: '16px', marginBottom: '30px', justifyContent: 'center',
               flexWrap: 'wrap'
@@ -53,8 +55,18 @@ const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
                 textAlign: 'center', backdropFilter: 'blur(10px)',
                 minWidth: '140px'
               }}>
-                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2ecc71' }}>{myReports.filter(r => r.status === 'Verified').length}</div>
-                <div style={{ color: '#2ecc71', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Verified</div>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2ecc71' }}>{myReports.filter(r => r.status === 'RESOLVED').length}</div>
+                <div style={{ color: '#2ecc71', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Resolved</div>
+              </div>
+              <div style={{ 
+                background: 'rgba(102,126,234,0.1)', 
+                border: '1px solid rgba(102,126,234,0.2)',
+                borderRadius: '16px', padding: '20px 30px',
+                textAlign: 'center', backdropFilter: 'blur(10px)',
+                minWidth: '140px'
+              }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#667eea' }}>{myReports.filter(r => r.status === 'SECURED').length}</div>
+                <div style={{ color: '#667eea', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Secured</div>
               </div>
               <div style={{ 
                 background: 'rgba(255,193,7,0.1)', 
@@ -63,8 +75,8 @@ const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
                 textAlign: 'center', backdropFilter: 'blur(10px)',
                 minWidth: '140px'
               }}>
-                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#f1c40f' }}>{myReports.filter(r => r.status === 'Pending').length}</div>
-                <div style={{ color: '#f1c40f', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Pending</div>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#f1c40f' }}>{myReports.filter(r => r.status === 'LOST' || r.status === 'FOUND').length}</div>
+                <div style={{ color: '#f1c40f', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Active</div>
               </div>
             </div>
 
@@ -81,6 +93,13 @@ const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
                   </tr>
                 </thead>
                 <tbody>
+                  {myReports.length === 0 && (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)' }}>
+                        No reports yet. Report a lost or found item to get started!
+                      </td>
+                    </tr>
+                  )}
                   {myReports.map((report, index) => (
                     <tr key={report.id} style={{ animation: `cardReveal 0.4s ${index * 0.08}s ease both` }}>
                       <td><strong>{report.itemName}</strong></td>
@@ -97,12 +116,12 @@ const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
                       <td>{report.date}</td>
                       <td>{report.location}</td>
                       <td>
-                        <span className={`status-pill ${report.status ? report.status.toLowerCase() : 'pending'}`}>
+                        <span className={`status-pill ${report.status ? report.status.toLowerCase() : 'lost'}`}>
                           {report.status}
                         </span>
                       </td>
                       <td>
-                        <button className="view-mini-btn">View →</button>
+                        <button className="view-mini-btn" onClick={() => navigate(`/item/${report.id}`)}>View →</button>
                       </td>
                     </tr>
                   ))}

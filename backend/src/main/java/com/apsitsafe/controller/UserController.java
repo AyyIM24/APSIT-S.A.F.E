@@ -1,7 +1,9 @@
 package com.apsitsafe.controller;
 
+import com.apsitsafe.config.JwtUtil;
 import com.apsitsafe.model.User;
 import com.apsitsafe.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,27 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    /**
+     * GET /api/users/me — returns the currently authenticated user's profile.
+     * Must be declared BEFORE /{id} to avoid path conflict.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest httpRequest) {
+        try {
+            Long userId = extractUserId(httpRequest);
+            if (userId == null) {
+                return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+            }
+            User user = userService.getUserById(userId);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers(
@@ -56,5 +79,14 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private Long extractUserId(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            return jwtUtil.extractUserId(token);
+        }
+        return null;
     }
 }

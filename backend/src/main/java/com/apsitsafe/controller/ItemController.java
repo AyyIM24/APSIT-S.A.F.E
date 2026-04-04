@@ -7,6 +7,7 @@ import com.apsitsafe.service.ItemService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +27,27 @@ public class ItemController {
     private JwtUtil jwtUtil;
 
     @GetMapping
-    public ResponseEntity<List<Item>> getAllItems(
+    public ResponseEntity<?> getAllItems(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String location,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+
+        // If page & size are provided, return paginated results
+        if (page != null && size != null) {
+            Page<Item> pagedItems = itemService.getFilteredItemsPaged(type, category, location, search, page, size);
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", pagedItems.getContent());
+            response.put("totalPages", pagedItems.getTotalPages());
+            response.put("totalElements", pagedItems.getTotalElements());
+            response.put("currentPage", pagedItems.getNumber());
+            response.put("pageSize", pagedItems.getSize());
+            return ResponseEntity.ok(response);
+        }
+
+        // Default: return all items (backward compatible)
         List<Item> items = itemService.getFilteredItems(type, category, location, search);
         return ResponseEntity.ok(items);
     }
