@@ -4,58 +4,54 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import AdminShell from '../../Components/admin/AdminShell';
+import api from '../../services/api';
 
-const COLORS = ['#667eea', '#764ba2', '#a68ada', '#cdc6ea'];
-
-const mockItems = [
-  { id: 1, name: "Blue HP Laptop", type: "lost", status: "SECURED", category: "electronics", location: "Library 2nd Floor", date: "2026-02-14" },
-  { id: 2, name: "iPhone 13", type: "found", status: "SECURED", category: "electronics", location: "Canteen", date: "2026-02-13" },
-  { id: 3, name: "APSIT ID Card", type: "lost", status: "SECURED", category: "id-cards", location: "Lab 402", date: "2026-02-12" },
-  { id: 4, name: "Blue Umbrella", type: "found", status: "FOUND", category: "others", location: "Main Gate", date: "2026-02-11" },
-  { id: 5, name: "Data Structures Notes", type: "lost", status: "RESOLVED", category: "books", location: "Seminar Hall", date: "2026-02-10" },
-  { id: 6, name: "Calculator", type: "found", status: "SECURED", category: "electronics", location: "Lab 401", date: "2026-02-09" },
-];
+const COLORS = ['#667eea', '#764ba2', '#a68ada', '#cdc6ea', '#120058', '#4facfe', '#00f2fe'];
 
 const AdminDashboard = () => {
-  const [items] = useState(mockItems);
+  const [statsData, setStatsData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
 
-  const lostCount = items.filter(i => i.type === 'lost').length;
-  const foundCount = items.filter(i => i.type === 'found').length;
-  const pendingClaims = items.filter(i => i.status === 'LOST' || i.status === 'FOUND').length;
-  const resolvedCount = items.filter(i => i.status === 'RESOLVED').length;
-  const securedCount = items.filter(i => i.status === 'SECURED').length;
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/dashboard/stats');
+        setStatsData(response.data);
+      } catch (err) {
+        console.error("Failed to load dashboard stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
-  const categoryMap = {};
-  items.forEach(item => {
-    const cat = item.category || 'others';
-    categoryMap[cat] = (categoryMap[cat] || 0) + 1;
-  });
-  const categoryData = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
+  const lostCount = statsData?.totalLost || 0;
+  const foundCount = statsData?.totalFound || 0;
+  const pendingClaims = statsData?.pendingClaims || 0;
+  const resolvedCount = statsData?.resolvedCount || 0;
+  const securedCount = statsData?.securedCount || 0;
 
+  const categoryData = statsData?.categoryData || [];
+  
+  // Create mock weekly data as we don't have this in the backend yet
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const weeklyData = days.map(day => ({
     day,
-    lost: Math.floor(Math.random() * 5) + 1,
+    lost: Math.floor(Math.random() * 5),
     found: Math.floor(Math.random() * 4),
   }));
 
-  const locationMap = {};
-  items.forEach(item => {
-    const loc = item.location || 'Unknown';
-    locationMap[loc] = (locationMap[loc] || 0) + 1;
-  });
-  const topLocations = Object.entries(locationMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4);
-  const maxLocCount = topLocations.length > 0 ? topLocations[0][1] : 1;
+  const topLocations = statsData?.locationData?.slice(0, 4) || [];
+  const maxLocCount = topLocations.length > 0 ? topLocations[0].count : 1;
 
-  const total = items.length || 1;
+  const total = statsData?.totalItems || 1;
 
   const stats = [
     { icon: '📦', label: 'Total Lost', count: lostCount, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
     { icon: '🔍', label: 'Total Found', count: foundCount, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-    { icon: '⏳', label: 'Pending', count: pendingClaims, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+    { icon: '⏳', label: 'Pending Claims', count: pendingClaims, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
     { icon: '✅', label: 'Resolved', count: resolvedCount, gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
   ];
 
@@ -67,11 +63,27 @@ const AdminDashboard = () => {
       const scanner = new Html5QrcodeScanner("reader", { qrbox: { width: 250, height: 250 }, fps: 10 });
       scanner.render(success, error);
 
-      function success(result) {
-        console.log("Admin Scan Success:", result);
+      async function success(result) {
         scanner.clear();
         setScanning(false);
-        alert(`Scanned: ${result}`);
+        try {
+          // Verify and auto-pickup for demonstration
+          let token = result;
+          if (result.includes("/")) {
+            token = result.split("/").pop();
+          }
+          
+          const verifyRes = await api.get(`/qr/verify/${token}`);
+          if (verifyRes.data.valid) {
+            alert(`Verified QR: Item ${verifyRes.data.itemName} claimed by ${verifyRes.data.claimedBy}. Marking as picked up...`);
+            const pickupRes = await api.put(`/qr/pickup/${token}`);
+            alert(pickupRes.data.message);
+          } else {
+            alert(`QR Invalid: ${verifyRes.data.message}`);
+          }
+        } catch (e) {
+          alert("QR verification failed. " + (e.response?.data?.message || ""));
+        }
       }
 
       function error(err) { /* silent */ }
@@ -81,6 +93,10 @@ const AdminDashboard = () => {
       };
     }
   }, [scanning]);
+
+  if (loading) {
+    return <AdminShell pageTitle="Dashboard"><div style={{ padding: '20px' }}>Loading statistics...</div></AdminShell>;
+  }
 
   return (
     <AdminShell pageTitle="Dashboard">
@@ -149,13 +165,13 @@ const AdminDashboard = () => {
         <div className="admin-chart-card anim-chartFadeScale" style={{ animationDelay: '0.6s' }}>
           <h3 className="admin-chart-title">Top Locations Reported</h3>
           <div style={{ padding: '10px 0' }}>
-            {topLocations.map(([loc, count]) => (
-              <div className="admin-location-row" key={loc}>
-                <span className="admin-location-name">{loc}</span>
+            {topLocations.map((locObj) => (
+              <div className="admin-location-row" key={locObj.name}>
+                <span className="admin-location-name">{locObj.name}</span>
                 <div className="admin-location-bar-bg">
-                  <div className="admin-location-bar-fill" style={{ width: `${(count / maxLocCount) * 100}%` }} />
+                  <div className="admin-location-bar-fill" style={{ width: `${(locObj.count / maxLocCount) * 100}%` }} />
                 </div>
-                <span className="admin-location-count">{count}</span>
+                <span className="admin-location-count">{locObj.count}</span>
               </div>
             ))}
           </div>

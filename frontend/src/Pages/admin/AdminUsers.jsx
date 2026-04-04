@@ -1,27 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminShell from '../../Components/admin/AdminShell';
-
-const mockUsers = [
-  { id: 1, name: 'Ayyan Muqadam', email: 'ayyan@apsit.edu.in', rollNo: 'IT-2024-001', reports: 3, joined: '2026-01-10', status: 'active' },
-  { id: 2, name: 'Rahul Sharma', email: 'rahul@apsit.edu.in', rollNo: 'CS-2023-045', reports: 1, joined: '2026-01-12', status: 'active' },
-  { id: 3, name: 'Priya Patel', email: 'priya@apsit.edu.in', rollNo: 'EC-2024-022', reports: 2, joined: '2026-01-15', status: 'active' },
-  { id: 4, name: 'Amit Kumar', email: 'amit@apsit.edu.in', rollNo: 'ME-2023-018', reports: 0, joined: '2026-02-01', status: 'active' },
-  { id: 5, name: 'Bishnupriya Mohapatra', email: 'bishnupriya@apsit.edu.in', rollNo: 'IT-2024-008', reports: 4, joined: '2026-01-08', status: 'active' },
-];
+import api from '../../services/api';
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get('/users');
+        setUsers(response.data);
+      } catch (err) {
+        console.error("Failed to fetch users", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+    u.name?.toLowerCase().includes(search.toLowerCase()) ||
+    u.email?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSuspend = (id) => {
-    setUsers(prev => prev.map(u =>
-      u.id === id ? { ...u, status: u.status === 'suspended' ? 'active' : 'suspended' } : u
-    ));
+  const handleSuspend = async (id) => {
+    try {
+      const response = await api.put(`/users/${id}/suspend`);
+      setUsers(prev => prev.map(u =>
+        u.id === id ? { ...u, status: response.data.user.status } : u
+      ));
+    } catch (err) {
+      console.error("Failed to toggle suspension", err);
+      alert("Failed to update user status.");
+    }
   };
 
   return (

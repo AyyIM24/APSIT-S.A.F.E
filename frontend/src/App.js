@@ -6,6 +6,7 @@ import './animations.css';
 
 // Shared Components
 import ThreeBackground from './Components/ThreeBackground';
+import CustomCursor from './Components/CustomCursor';
 import PageTransitionWrapper from './Components/PageTransitionWrapper';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
@@ -33,20 +34,24 @@ import AdminCategories from './Pages/admin/AdminCategories';
 import AdminAdmins from './Pages/admin/AdminAdmins';
 import AdminQRView from './Pages/admin/AdminQRView';
 
+import { authService } from './services/api';
+
 function AppContent() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(authService.isAuthenticated());
   const location = useLocation();
 
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHomePage = location.pathname === '/';
 
   const handleLogin = async (credentials) => {
-    console.log("Login attempt with:", credentials);
+    // Left empty here, actual login happens in LoginPage now
     setIsLoggedIn(true);
   };
 
+
   return (
     <>
+      <CustomCursor />
       <ThreeBackground />
 
       <div className="app-container">

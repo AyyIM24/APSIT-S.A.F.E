@@ -1,0 +1,124 @@
+package com.apsitsafe.service;
+
+import com.apsitsafe.dto.ClaimRequestDTO;
+import com.apsitsafe.model.ClaimRequest;
+import com.apsitsafe.model.Item;
+import com.apsitsafe.model.User;
+import com.apsitsafe.repository.ClaimRequestRepository;
+import com.apsitsafe.repository.ItemRepository;
+import com.apsitsafe.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class ClaimService {
+
+    @Autowired
+    private ClaimRequestRepository claimRequestRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public ClaimRequest submitClaim(ClaimRequestDTO dto, Long userId) {
+        Item item = itemRepository.findById(dto.getItemId())
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+
+        User user = null;
+        if (userId != null) {
+            user = userRepository.findById(userId).orElse(null);
+        }
+
+        ClaimRequest claim = ClaimRequest.builder()
+                .item(item)
+                .claimedBy(user)
+                .claimedByName(dto.getClaimedByName())
+                .email(dto.getEmail())
+                .proof(dto.getProof())
+                .status("pending")
+                .build();
+
+        return claimRequestRepository.save(claim);
+    }
+
+    public List<ClaimRequest> getAllClaims() {
+        return claimRequestRepository.findAll();
+    }
+
+    public List<ClaimRequest> getClaimsByStatus(String status) {
+        if (status == null || status.equalsIgnoreCase("all")) {
+            return claimRequestRepository.findAll();
+        }
+        return claimRequestRepository.findByStatus(status);
+    }
+
+    public ClaimRequest approveClaim(Long claimId) {
+        ClaimRequest claim = claimRequestRepository.findById(claimId)
+                .orElseThrow(() -> new RuntimeException("Claim not found"));
+
+        claim.setStatus("approved");
+        claim.setUpdatedAt(LocalDateTime.now());
+
+        // Generate unique pickup token for QR code
+        String pickupToken = "SAFE-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        claim.setPickupToken(pickupToken);
+
+        // Update item status to RESOLVED
+        Item item = claim.getItem();
+        item.setStatus("RESOLVED");
+        itemRepository.save(item);
+
+        return claimRequestRepository.save(claim);
+    }
+
+    public ClaimRequest rejectClaim(Long claimId) {
+        ClaimRequest claim = claimRequestRepository.findById(claimId)
+                .orElseThrow(() -> new RuntimeException("Claim not found"));
+
+        claim.setStatus("rejected");
+        claim.setUpdatedAt(LocalDateTime.now());
+
+        return claimRequestRepository.save(claim);
+    }
+
+    public ClaimRequest findByPickupToken(String token) {
+        return claimRequestRepository.findByPickupToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid pickup token: " + token));
+    }
+
+    public ClaimRequest confirmPickup(String token) {
+        ClaimRequest claim = findByPickupToken(token);
+
+        if (!"approved".equals(claim.getStatus())) {
+            throw new RuntimeException("This claim has not been approved yet");
+        }
+        if (Boolean.TRUE.equals(claim.getPickedUp())) {
+            throw new RuntimeException("This item has already been picked up on " + claim.getPickedUpAt());
+        }
+
+        claim.setPickedUp(true);
+        claim.setPickedUpAt(LocalDateTime.now());
+        claim.setUpdatedAt(LocalDateTime.now());
+
+        // Update item status
+        Item item = claim.getItem();
+        item.setStatus("PICKED_UP");
+        itemRepository.save(item);
+
+        return claimRequestRepository.save(claim);
+    }
+
+    public List<ClaimRequest> getClaimsByItem(Long itemId) {
+        return claimRequestRepository.findByItemId(itemId);
+    }
+
+    public List<ClaimRequest> getClaimsByUser(Long userId) {
+        return claimRequestRepository.findByClaimedById(userId);
+    }
+}

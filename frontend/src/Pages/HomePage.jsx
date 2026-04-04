@@ -26,7 +26,7 @@ function HomePage() {
         {/* Header Banner */}
         <div className="home-header-banner anim-fadeScale">
           <img src={logo} alt="APSIT Logo" />
-          <h1 style={{ flex: 1 }}>APSIT S.A.F.E</h1>
+          <h1 style={{ flex: 1, textAlign: 'center' }}>APSIT S.A.F.E</h1>
           <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>

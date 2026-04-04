@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import { motion, AnimatePresence } from 'framer-motion';
+import api, { authService } from '../services/api';
 
-const mockItems = [
-  { id: 1, name: "Blue HP Laptop", status: "LOST", category: "electronics", location: "Library 2nd Floor", date: "2026-02-14", description: "Blue HP Pavilion laptop with APSIT sticker on lid. Was left on a desk near the window.", type: "lost", image: "/images/Img 1.jpg" },
-  { id: 2, name: "iPhone 13", status: "FOUND", category: "electronics", location: "Canteen", date: "2026-02-13", description: "White iPhone 13 found near the food counter. Has a transparent case with dried flowers.", type: "found", image: "/images/Img 2.jpg" },
-  { id: 3, name: "APSIT ID Card", status: "LOST", category: "id-cards", location: "Lab 402", date: "2026-02-12", description: "Student ID card for IT department. Name partially visible.", type: "lost", image: "" },
-  { id: 4, name: "Blue Umbrella", status: "FOUND", category: "others", location: "Main Gate", date: "2026-02-11", description: "Blue foldable umbrella found near the main gate security cabin.", type: "found", image: "" },
-  { id: 5, name: "Data Structures Notes", status: "LOST", category: "books", location: "Seminar Hall", date: "2026-02-10", description: "Handwritten DS notes, about 50 pages, spiral bound. Has name written inside.", type: "lost", image: "" },
-  { id: 6, name: "Calculator", status: "FOUND", category: "electronics", location: "Lab 401", date: "2026-02-09", description: "Casio scientific calculator found in Lab 401 after the exam.", type: "found", image: "" },
-];
+const draw = {
+  hidden: { pathLength: 0, opacity: 0 },
+  visible: (i) => {
+    const delay = 0.2 + i * 0.5;
+    return {
+      pathLength: 1,
+      opacity: 1,
+      transition: { pathLength: { delay, type: "spring", duration: 1.5, bounce: 0 }, opacity: { delay, duration: 0.01 } }
+    };
+  }
+};
 
 const categoryEmoji = {
   electronics: '💻', 'id-cards': '🪪', books: '📚', bags: '🎒',
@@ -19,13 +24,47 @@ const categoryEmoji = {
 const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const item = mockItems.find(i => i.id === parseInt(id));
+  
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Claim flow states
   const [claimStatus, setClaimStatus] = useState('none');
   // 'none' | 'pending' | 'approved' | 'rejected'
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [proof, setProof] = useState('');
+  const [myClaim, setMyClaim] = useState(null);
+
+  useEffect(() => {
+    const fetchItemAndClaims = async () => {
+      try {
+        const itemRes = await api.get(`/items/${id}`);
+        setItem(itemRes.data);
+      } catch (err) {
+        console.error("Failed to fetch item", err);
+      }
+
+      try {
+        if (authService.isAuthenticated()) {
+          const claimsRes = await api.get('/claims/my-claims');
+          const fetchedClaim = claimsRes.data.find(c => c.item?.id === Number(id) || c.itemId === Number(id));
+          if (fetchedClaim) {
+            setClaimStatus(fetchedClaim.status?.toLowerCase() || 'pending');
+            setMyClaim(fetchedClaim);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch claims", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItemAndClaims();
+  }, [id]);
+
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', fontSize: '2rem' }}>Loading details...</div>;
+  }
 
   if (!item) {
     return (
@@ -40,18 +79,26 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
     );
   }
 
-  const handleClaimSubmit = (e) => {
+  const handleClaimSubmit = async (e) => {
     e.preventDefault();
-    console.log("Claim submitted for item:", item.id, "Proof:", proof);
     setShowClaimModal(false);
     setClaimStatus('pending');
 
-    // AUTO-APPROVE AFTER 3 SECONDS — TESTING ONLY
-    // In production, remove this timeout.
-    // QR should only appear after Admin clicks Approve in AdminClaimRequests.
-    setTimeout(() => {
-      setClaimStatus('approved');
-    }, 3000);
+    try {
+      const user = authService.getUser() || {};
+      const response = await api.post(`/claims`, {
+        itemId: item.id,
+        proof: proof,
+        claimedByName: user.name || "Student",
+        email: user.email || "student@apsit.edu.in"
+      });
+      console.log("Claim submitted successfully", response.data);
+      // Wait for admin approval. We could set up polling or just tell user to wait.
+      // For testing, let's keep it pending.
+    } catch (err) {
+      console.error("Failed to submit claim", err);
+      setClaimStatus('rejected');
+    }
   };
 
   const handleDownloadQR = () => {
@@ -78,7 +125,7 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
     img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
   };
 
-  const isLost = item.type === 'lost';
+  const isLost = item.type?.toLowerCase() === 'lost';
 
   return (
     <div className="report-root">
@@ -86,21 +133,21 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
         <div className="item-detail-card anim-cardReveal">
           {/* Image Section */}
           <div className="item-detail-image">
-            {item.image ? (
-              <img src={item.image} alt={item.name} />
+            {item.imageUrl ? (
+              <img src={item.imageUrl} alt={item.itemName} />
             ) : (
               <div className="item-detail-emoji-placeholder">
                 {categoryEmoji[item.category] || '📦'}
               </div>
             )}
-            <span className={`item-detail-status-badge ${item.status.toLowerCase()}`}>
+            <span className={`item-detail-status-badge ${item.status?.toLowerCase()}`}>
               {item.status}
             </span>
           </div>
 
           {/* Info Section */}
           <div className="item-detail-info">
-            <h1>{item.name}</h1>
+            <h1>{item.itemName}</h1>
 
             <div className="item-detail-meta-grid">
               <div className="meta-box">
@@ -127,49 +174,85 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
             </div>
 
             {/* === ACTION AREA — depends on item type and claim state === */}
-            <div className="item-action-area">
+            <div className="item-action-area" style={{ position: 'relative', minHeight: '150px' }}>
 
               {/* FOUND items → show "Claim This Item" flow */}
               {!isLost && (
-                <>
+                <AnimatePresence mode="wait">
                   {claimStatus === 'none' && (
-                    <button className="claim-btn anim-singlePulse" onClick={() => setShowClaimModal(true)}>
-                      🎁 Claim This Item
-                    </button>
+                    <motion.div 
+                        key="none"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                    >
+                      <button className="claim-btn anim-singlePulse" onClick={() => setShowClaimModal(true)}>
+                        🎁 Claim This Item
+                      </button>
+                    </motion.div>
                   )}
 
                   {claimStatus === 'pending' && (
-                    <div className="claim-pending-state">
-                      <div className="pending-spinner">⏳</div>
+                    <motion.div 
+                        key="pending"
+                        className="claim-pending-state"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                    >
+                      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="pending-spinner">⏳</motion.div>
                       <h4>Claim Under Review</h4>
                       <p>The Admin is verifying your proof. You'll be notified once approved.</p>
-                    </div>
+                    </motion.div>
                   )}
 
                   {claimStatus === 'approved' && (
-                    <div className="claim-approved-state">
-                      <h4>✅ Claim Approved!</h4>
-                      <p>Show this QR code at the Security Desk to collect your item.</p>
-                      <div className="qr-wrapper">
-                        <QRCodeSVG
-                          value={`https://apsit-safe.edu.in/pickup/${item.id}`}
-                          size={200}
-                          fgColor="#120058"
-                          bgColor="#ffffff"
-                        />
-                      </div>
-                      <p style={{ fontSize: '12px', color: '#155724', marginTop: '8px' }}>
-                        {item.name} · {item.location}
-                      </p>
-                      <div className="qr-actions">
-                        <button className="btn-gradient-card" onClick={() => window.print()}>🖨️ Print</button>
-                        <button className="btn-gradient-card" onClick={handleDownloadQR}>⬇️ Save as Image</button>
-                      </div>
-                    </div>
+                    <motion.div 
+                        key="approved"
+                        className="claim-approved-state"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                    >
+                      <motion.svg
+                        width="80" height="80" viewBox="0 0 100 100"
+                        initial="hidden" animate="visible"
+                        style={{ margin: '0 0 10px 0', display: 'block' }}
+                      >
+                        <motion.circle cx="50" cy="50" r="42" stroke="#28a745" strokeWidth="6" fill="rgba(40, 167, 69, 0.1)" variants={draw} custom={0} />
+                        <motion.path d="M 33 52 L 45 64 L 68 38" stroke="#28a745" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none" variants={draw} custom={0.5} />
+                      </motion.svg>
+                      
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+                        <h4>Claim Approved!</h4>
+                        <p>Show this QR code at the Security Desk to collect your item.</p>
+                        <div className="qr-wrapper">
+                          <QRCodeSVG
+                            value={`https://apsit-safe.edu.in/pickup/${myClaim?.pickupToken || item.id}`}
+                            size={160}
+                            fgColor="#120058"
+                            bgColor="#ffffff"
+                          />
+                        </div>
+                        <p style={{ fontSize: '12px', color: '#155724', marginTop: '8px' }}>
+                          {item.itemName} · {item.location}
+                        </p>
+                        <div className="qr-actions">
+                          <button className="btn-gradient-card" onClick={() => window.print()}>🖨️ Print</button>
+                          <button className="btn-gradient-card" onClick={handleDownloadQR}>⬇️ Image</button>
+                        </div>
+                      </motion.div>
+                    </motion.div>
                   )}
 
                   {claimStatus === 'rejected' && (
-                    <div className="claim-rejected-state">
+                    <motion.div 
+                        key="rejected"
+                        className="claim-rejected-state"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                    >
                       <h4>❌ Claim Not Approved</h4>
                       <p>Your proof didn't match. You may try again with better details.</p>
                       <button className="claim-btn" onClick={() => {
@@ -179,9 +262,9 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
                       }}>
                         🔄 Try Again
                       </button>
-                    </div>
+                    </motion.div>
                   )}
-                </>
+                </AnimatePresence>
               )}
 
               {/* LOST items → show "I Found This Item!" button */}

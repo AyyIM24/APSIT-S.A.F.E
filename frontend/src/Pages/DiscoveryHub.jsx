@@ -1,18 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const mockItems = [
-  { id: 1, name: "Blue HP Laptop", status: "LOST", category: "electronics", location: "Library 2nd Floor", date: "2026-02-14", type: "lost", image: "/images/Img 1.jpg" },
-  { id: 2, name: "iPhone 13", status: "FOUND", category: "electronics", location: "Canteen", date: "2026-02-13", type: "found", image: "/images/Img 2.jpg" },
-  { id: 3, name: "APSIT ID Card", status: "LOST", category: "id-cards", location: "Lab 402", date: "2026-02-12", type: "lost", image: "" },
-  { id: 4, name: "Blue Umbrella", status: "FOUND", category: "others", location: "Main Gate", date: "2026-02-11", type: "found", image: "" },
-  { id: 5, name: "Data Structures Notes", status: "LOST", category: "books", location: "Seminar Hall", date: "2026-02-10", type: "lost", image: "" },
-  { id: 6, name: "Calculator", status: "FOUND", category: "electronics", location: "Lab 401", date: "2026-02-09", type: "found", image: "" },
-];
+import api from '../services/api';
 
 const categoryEmoji = {
   electronics: '💻', 'id-cards': '🪪', books: '📚', bags: '🎒',
-  accessories: '⌚', keys: '🔑', others: '📦'
+  accessories: '⌚', keys: '🔑', others: '📦', other: '👓'
 };
 
 const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
@@ -20,14 +12,39 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
   const [category, setCategory] = useState('all');
   const [location, setLocation] = useState('all');
   const [activeTab, setActiveTab] = useState('lost'); // Default to 'lost'
+  
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredItems = mockItems.filter(item => {
-    const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await api.get('/items');
+        setItems(response.data);
+      } catch (err) {
+        console.error("Failed to fetch items", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
+  }, []);
+
+  const filteredItems = items.filter(item => {
+    const matchSearch = item.itemName?.toLowerCase().includes(search.toLowerCase()) || 
+                       (item.description && item.description.toLowerCase().includes(search.toLowerCase()));
+    // If backend returns category as string "electronics"
     const matchCategory = category === 'all' || item.category === category;
     const matchLocation = location === 'all' || item.location === location;
-    const matchTab = item.type === activeTab;
+    // Map backend domain type (LOST, FOUND) to tabs (lost, found)
+    const matchTab = item.type?.toLowerCase() === activeTab.toLowerCase();
     return matchSearch && matchCategory && matchLocation && matchTab;
   });
+
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', fontSize: '2rem' }}>Loading items...</div>;
+  }
+
 
   return (
     <div className="discovery-theme-root">
@@ -130,18 +147,18 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
                   style={{ animationDelay: `${Math.min(index, 8) * 0.08}s` }}
                 >
                   <div className="card-image-field">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="item-img-render" />
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.itemName} className="item-img-render" />
                     ) : (
                       <div className="card-emoji-placeholder">
                         {categoryEmoji[item.category] || '📦'}
                       </div>
                     )}
-                    <span className={`status-badge ${item.status.toLowerCase()}`}>{item.status}</span>
-                    <span className={`type-badge ${item.type}`}>{item.type === 'lost' ? '📦 Lost' : '🔍 Found'}</span>
+                    <span className={`status-badge ${item.status?.toLowerCase()}`}>{item.status}</span>
+                    <span className={`type-badge ${item.type?.toLowerCase()}`}>{item.type?.toLowerCase() === 'lost' ? '📦 Lost' : '🔍 Found'}</span>
                   </div>
                   <div className="card-info">
-                    <h4>{item.name}</h4>
+                    <h4>{item.itemName}</h4>
                     <p>📍 {item.location}</p>
                     <p>📅 {item.date}</p>
                     <button className="btn-gradient-card view-btn-card">View Details →</button>

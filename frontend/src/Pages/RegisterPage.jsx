@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-const registerUser = async (user) => { return { data: { name: user.name } }; };
+import { motion, AnimatePresence } from 'framer-motion';
+import api from '../services/api';
 
 const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
     const [name, setName] = useState('');
@@ -10,6 +10,7 @@ const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [registerSuccess, setRegisterSuccess] = useState(false);
     const navigate = useNavigate();
 
     // Password strength logic
@@ -42,19 +43,69 @@ const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
 
         setLoading(true);
         try {
-            const response = await registerUser({ name, email, password });
+            await api.post('/auth/register', { name, email, password });
             setLoading(false);
-            alert(`Registration successful for ${response.data.name}!`);
-            navigate('/login');
+            setRegisterSuccess(true);
+            setTimeout(() => {
+                navigate('/login');
+            }, 1200);
         } catch (err) {
             setLoading(false);
-            setError('Registration failed. Please try again.');
+            if (err.response && err.response.data) {
+                setError(err.response.data.message || 'Registration failed.');
+            } else {
+                setError('Registration failed. Please try again.');
+            }
         }
     };
 
     return (
         <div className="auth-page">
-            <div className="auth-card anim-formRise">
+            <AnimatePresence>
+                {registerSuccess && (
+                    <motion.div 
+                        initial={{ clipPath: 'circle(0% at 50% 50%)' }}
+                        animate={{ clipPath: 'circle(150% at 50% 50%)' }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100vw',
+                            height: '100vh',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            zIndex: 9999,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            flexDirection: 'column',
+                            gap: '20px'
+                        }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                            transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+                            style={{ fontSize: '4rem' }}
+                        >
+                            🎉
+                        </motion.div>
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.6 }}
+                        >
+                            Account Created!
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <div className={`auth-card anim-formRise ${registerSuccess ? 'hidden' : ''}`}>
                 <div className="auth-card-header">
                     <div className="auth-icon">📝</div>
                     <h1>Create Account</h1>

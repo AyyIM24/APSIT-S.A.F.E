@@ -1,0 +1,668 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-04-03T18:17:03.431+05:30  INFO 10468 --- [           main] com.apsitsafe.ApsitSafeApplication       : Starting ApsitSafeApplication v1.0.0 using Java 17.0.15 with PID 10468 (C:\Users\Admin\OneDrive\Desktop\Testing\APSIT-S.A.F.E\backend\target\apsit-safe-backend-1.0.0.jar started by AIM in C:\Users\Admin\OneDrive\Desktop\Testing\APSIT-S.A.F.E\backend)
+2026-04-03T18:17:03.438+05:30  INFO 10468 --- [           main] com.apsitsafe.ApsitSafeApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-04-03T18:17:04.747+05:30  INFO 10468 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-03T18:17:04.828+05:30  INFO 10468 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 72 ms. Found 5 JPA repository interfaces.
+2026-04-03T18:17:05.823+05:30  INFO 10468 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-03T18:17:05.841+05:30  INFO 10468 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-03T18:17:05.841+05:30  INFO 10468 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-04-03T18:17:05.903+05:30  INFO 10468 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-03T18:17:05.904+05:30  INFO 10468 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2325 ms
+2026-04-03T18:17:06.175+05:30  INFO 10468 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-03T18:17:06.258+05:30  INFO 10468 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-04-03T18:17:06.312+05:30  INFO 10468 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-03T18:17:06.646+05:30  INFO 10468 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-03T18:17:06.682+05:30  INFO 10468 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-03T18:17:07.041+05:30  INFO 10468 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@22fb9a2c
+2026-04-03T18:17:07.043+05:30  INFO 10468 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-03T18:17:07.154+05:30  WARN 10468 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-03T18:17:08.068+05:30  INFO 10468 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table claim_requests 
+       add column picked_up bit
+Hibernate: 
+    alter table claim_requests 
+       add column picked_up_at datetime(6)
+Hibernate: 
+    alter table claim_requests 
+       add column pickup_token varchar(255)
+Hibernate: 
+    alter table claim_requests 
+       drop index UK_5jrek6h06geoj8q79owemn35y
+Hibernate: 
+    alter table claim_requests 
+       add constraint UK_5jrek6h06geoj8q79owemn35y unique (pickup_token)
+2026-04-03T18:17:08.457+05:30  INFO 10468 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-03T18:17:08.825+05:30  INFO 10468 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-03T18:17:09.561+05:30  WARN 10468 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-03T18:17:09.583+05:30  WARN 10468 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: a854c350-ac97-49e1-b136-f595487865ce
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-03T18:17:10.046+05:30  INFO 10468 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@761b4581, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@51e0629a, org.springframework.security.web.context.SecurityContextHolderFilter@10f535a6, org.springframework.security.web.header.HeaderWriterFilter@2a5782d7, org.springframework.web.filter.CorsFilter@2fc2305a, org.springframework.security.web.authentication.logout.LogoutFilter@482b6e57, com.apsitsafe.config.JwtAuthFilter@10c47c79, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2c969f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2438702, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@72c50c9f, org.springframework.security.web.session.SessionManagementFilter@4bf14a9c, org.springframework.security.web.access.ExceptionTranslationFilter@6d41b46a, org.springframework.security.web.access.intercept.AuthorizationFilter@b359d2d]
+2026-04-03T18:17:10.398+05:30  INFO 10468 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-04-03T18:17:10.433+05:30  INFO 10468 --- [           main] com.apsitsafe.ApsitSafeApplication       : Started ApsitSafeApplication in 7.651 seconds (process running for 8.225)
+Hibernate: 
+    select
+        a1_0.id 
+    from
+        admins a1_0 
+    where
+        a1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-04-03T18:18:55.715+05:30  INFO 10468 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-03T18:18:55.715+05:30  INFO 10468 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-03T18:18:55.717+05:30  INFO 10468 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+Hibernate: 
+    select
+        a1_0.id,
+        a1_0.created_at,
+        a1_0.email,
+        a1_0.name,
+        a1_0.password,
+        a1_0.role 
+    from
+        admins a1_0 
+    where
+        a1_0.email=?
+Hibernate: 
+    select
+        cr1_0.id,
+        cb1_0.id,
+        cb1_0.branch,
+        cb1_0.created_at,
+        cb1_0.email,
+        cb1_0.name,
+        cb1_0.password,
+        cb1_0.phone,
+        cb1_0.roll_no,
+        cb1_0.status,
+        cb1_0.year,
+        cr1_0.claimed_by_name,
+        cr1_0.created_at,
+        cr1_0.email,
+        cr1_0.item_id,
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type,
+        cr1_0.picked_up,
+        cr1_0.picked_up_at,
+        cr1_0.pickup_token,
+        cr1_0.proof,
+        rb2_0.id,
+        rb2_0.created_at,
+        rb2_0.email,
+        rb2_0.name,
+        rb2_0.password,
+        rb2_0.role,
+        cr1_0.status,
+        cr1_0.updated_at 
+    from
+        claim_requests cr1_0 
+    left join
+        users cb1_0 
+            on cb1_0.id=cr1_0.claimed_by_id 
+    join
+        items i1_0 
+            on i1_0.id=cr1_0.item_id 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    left join
+        admins rb2_0 
+            on rb2_0.id=cr1_0.reviewed_by_id 
+    where
+        cr1_0.id=?
+Hibernate: 
+    update
+        claim_requests 
+    set
+        claimed_by_id=?,
+        claimed_by_name=?,
+        email=?,
+        item_id=?,
+        picked_up=?,
+        picked_up_at=?,
+        pickup_token=?,
+        proof=?,
+        reviewed_by_id=?,
+        status=?,
+        updated_at=? 
+    where
+        id=?
+Hibernate: 
+    select
+        cr1_0.id,
+        cr1_0.claimed_by_id,
+        cr1_0.claimed_by_name,
+        cr1_0.created_at,
+        cr1_0.email,
+        cr1_0.item_id,
+        cr1_0.picked_up,
+        cr1_0.picked_up_at,
+        cr1_0.pickup_token,
+        cr1_0.proof,
+        cr1_0.reviewed_by_id,
+        cr1_0.status,
+        cr1_0.updated_at 
+    from
+        claim_requests cr1_0 
+    where
+        cr1_0.status=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.branch,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.roll_no,
+        u1_0.status,
+        u1_0.year 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.branch,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.roll_no,
+        u1_0.status,
+        u1_0.year 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?
+Hibernate: 
+    select
+        cr1_0.id,
+        cr1_0.claimed_by_id,
+        cr1_0.claimed_by_name,
+        cr1_0.created_at,
+        cr1_0.email,
+        cr1_0.item_id,
+        cr1_0.picked_up,
+        cr1_0.picked_up_at,
+        cr1_0.pickup_token,
+        cr1_0.proof,
+        cr1_0.reviewed_by_id,
+        cr1_0.status,
+        cr1_0.updated_at 
+    from
+        claim_requests cr1_0 
+    where
+        cr1_0.pickup_token=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.branch,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.roll_no,
+        u1_0.status,
+        u1_0.year 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?
+Hibernate: 
+    select
+        cr1_0.id,
+        cr1_0.claimed_by_id,
+        cr1_0.claimed_by_name,
+        cr1_0.created_at,
+        cr1_0.email,
+        cr1_0.item_id,
+        cr1_0.picked_up,
+        cr1_0.picked_up_at,
+        cr1_0.pickup_token,
+        cr1_0.proof,
+        cr1_0.reviewed_by_id,
+        cr1_0.status,
+        cr1_0.updated_at 
+    from
+        claim_requests cr1_0 
+    where
+        cr1_0.pickup_token=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.branch,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.roll_no,
+        u1_0.status,
+        u1_0.year 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?
+Hibernate: 
+    update
+        items 
+    set
+        category=?,
+        contact_email=?,
+        contact_name=?,
+        contact_phone=?,
+        date=?,
+        description=?,
+        image_url=?,
+        item_name=?,
+        location=?,
+        reported_by_id=?,
+        status=?,
+        type=? 
+    where
+        id=?
+Hibernate: 
+    update
+        claim_requests 
+    set
+        claimed_by_id=?,
+        claimed_by_name=?,
+        email=?,
+        item_id=?,
+        picked_up=?,
+        picked_up_at=?,
+        pickup_token=?,
+        proof=?,
+        reviewed_by_id=?,
+        status=?,
+        updated_at=? 
+    where
+        id=?
+Hibernate: 
+    select
+        cr1_0.id,
+        cr1_0.claimed_by_id,
+        cr1_0.claimed_by_name,
+        cr1_0.created_at,
+        cr1_0.email,
+        cr1_0.item_id,
+        cr1_0.picked_up,
+        cr1_0.picked_up_at,
+        cr1_0.pickup_token,
+        cr1_0.proof,
+        cr1_0.reviewed_by_id,
+        cr1_0.status,
+        cr1_0.updated_at 
+    from
+        claim_requests cr1_0 
+    where
+        cr1_0.pickup_token=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.branch,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.roll_no,
+        u1_0.status,
+        u1_0.year 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?
+Hibernate: 
+    select
+        cr1_0.id,
+        cr1_0.claimed_by_id,
+        cr1_0.claimed_by_name,
+        cr1_0.created_at,
+        cr1_0.email,
+        cr1_0.item_id,
+        cr1_0.picked_up,
+        cr1_0.picked_up_at,
+        cr1_0.pickup_token,
+        cr1_0.proof,
+        cr1_0.reviewed_by_id,
+        cr1_0.status,
+        cr1_0.updated_at 
+    from
+        claim_requests cr1_0
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.branch,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.roll_no,
+        u1_0.status,
+        u1_0.year 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.branch,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.roll_no,
+        u1_0.status,
+        u1_0.year 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.category,
+        i1_0.contact_email,
+        i1_0.contact_name,
+        i1_0.contact_phone,
+        i1_0.created_at,
+        i1_0.date,
+        i1_0.description,
+        i1_0.image_url,
+        i1_0.item_name,
+        i1_0.location,
+        rb1_0.id,
+        rb1_0.branch,
+        rb1_0.created_at,
+        rb1_0.email,
+        rb1_0.name,
+        rb1_0.password,
+        rb1_0.phone,
+        rb1_0.roll_no,
+        rb1_0.status,
+        rb1_0.year,
+        i1_0.status,
+        i1_0.type 
+    from
+        items i1_0 
+    left join
+        users rb1_0 
+            on rb1_0.id=i1_0.reported_by_id 
+    where
+        i1_0.id=?

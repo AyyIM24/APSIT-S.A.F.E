@@ -1,25 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminShell from '../../Components/admin/AdminShell';
-
-const mockClaims = [
-  { id: 1, itemName: 'Blue HP Laptop', claimedBy: 'Rahul Sharma', email: 'rahul@apsit.edu.in', proof: 'I lost my blue HP laptop in the library on Feb 14. It has a Batman sticker on the back and my name engraved on the bottom. Serial number: HP-2024-XXXX.', date: '2026-02-15', status: 'pending' },
-  { id: 2, itemName: 'iPhone 13', claimedBy: 'Priya Patel', email: 'priya@apsit.edu.in', proof: 'This is my iPhone 13. It has a purple case with flower patterns. The lock screen wallpaper is a photo of my dog. I can provide the IMEI number.', date: '2026-02-14', status: 'pending' },
-  { id: 3, itemName: 'Student ID Card', claimedBy: 'Amit Kumar', email: 'amit@apsit.edu.in', proof: 'My student ID card with roll number CS-2023-045. The card also has my library code on the back.', date: '2026-02-13', status: 'approved' },
-];
+import api from '../../services/api';
 
 const AdminClaimRequests = () => {
-  const [claims, setClaims] = useState(mockClaims);
+  const [claims, setClaims] = useState([]);
   const [filter, setFilter] = useState('all');
   const [drawerClaim, setDrawerClaim] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = filter === 'all' ? claims : claims.filter(c => c.status === filter);
+  const fetchClaims = async () => {
+    try {
+      const response = await api.get('/claims');
+      setClaims(response.data);
+    } catch (err) {
+      console.error("Failed to load claims", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleAction = (id, action) => {
-    setClaims(prev => prev.map(c =>
-      c.id === id ? { ...c, status: action } : c
-    ));
-    if (drawerClaim && drawerClaim.id === id) {
-      setDrawerClaim(null);
+  useEffect(() => {
+    fetchClaims();
+  }, []);
+
+  const filtered = filter === 'all' ? claims : claims.filter(c => c.status.toLowerCase() === filter);
+
+  const handleAction = async (id, action) => {
+    try {
+      if (action === 'approved') {
+        await api.put(`/claims/${id}/approve`);
+      } else {
+        await api.put(`/claims/${id}/reject`);
+      }
+      
+      // Update local state temporarily
+      setClaims(prev => prev.map(c =>
+        c.id === id ? { ...c, status: action } : c
+      ));
+      
+      if (drawerClaim && drawerClaim.id === id) {
+        setDrawerClaim(null);
+      }
+    } catch (err) {
+      console.error("Action failed", err);
+      alert("Failed to update claim status");
     }
   };
 
@@ -54,12 +78,12 @@ const AdminClaimRequests = () => {
         <tbody>
           {filtered.map((claim, index) => (
             <tr key={claim.id} style={{ animation: `cardReveal 0.4s ${index * 0.06}s ease both` }}>
-              <td style={{ fontWeight: 700 }}>{claim.itemName}</td>
+              <td style={{ fontWeight: 700 }}>{claim.item?.itemName || 'Unknown'}</td>
               <td>
-                <div>{claim.claimedBy}</div>
+                <div>{claim.claimedByName || claim.claimedBy?.name}</div>
                 <div style={{ fontSize: '12px', color: '#764ba2' }}>{claim.email}</div>
               </td>
-              <td>{claim.date}</td>
+              <td>{claim.createdAt ? new Date(claim.createdAt).toLocaleDateString() : 'N/A'}</td>
               <td>
                 <span className={`admin-pill ${claim.status}`}>{claim.status}</span>
               </td>
@@ -103,18 +127,18 @@ const AdminClaimRequests = () => {
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ fontSize: '12px', color: '#764ba2', fontWeight: 700, textTransform: 'uppercase' }}>Item</label>
-              <p style={{ color: '#120058', fontWeight: 700, fontSize: '1.1rem' }}>{drawerClaim.itemName}</p>
+              <p style={{ color: '#120058', fontWeight: 700, fontSize: '1.1rem' }}>{drawerClaim.item?.itemName}</p>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ fontSize: '12px', color: '#764ba2', fontWeight: 700, textTransform: 'uppercase' }}>Claimed By</label>
-              <p style={{ color: '#120058', fontWeight: 600 }}>{drawerClaim.claimedBy}</p>
+              <p style={{ color: '#120058', fontWeight: 600 }}>{drawerClaim.claimedByName || drawerClaim.claimedBy?.name}</p>
               <p style={{ color: '#764ba2', fontSize: '14px' }}>{drawerClaim.email}</p>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ fontSize: '12px', color: '#764ba2', fontWeight: 700, textTransform: 'uppercase' }}>Date Submitted</label>
-              <p style={{ color: '#120058' }}>{drawerClaim.date}</p>
+              <p style={{ color: '#120058' }}>{drawerClaim.createdAt ? new Date(drawerClaim.createdAt).toLocaleDateString() : 'N/A'}</p>
             </div>
 
             <div style={{ marginBottom: '20px' }}>

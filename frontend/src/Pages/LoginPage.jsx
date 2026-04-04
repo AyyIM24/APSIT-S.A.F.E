@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import api, { authService } from '../services/api';
 
 const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [loginSuccess, setLoginSuccess] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -14,9 +17,18 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
         setLoading(true);
 
         try {
-            await onLogin({ email, password });
+            const response = await api.post('/auth/login', { email, password });
+            authService.setAuth(response.data.token, { email, role: 'ROLE_USER' });
+            
+            // Still call parent to update App state if needed
+            if (onLogin) await onLogin({ email, password });
+            setIsLoggedIn(true);
+
             setLoading(false);
-            navigate('/discovery');
+            setLoginSuccess(true);
+            setTimeout(() => {
+                navigate('/discovery');
+            }, 1200); // Delay navigation to allow animation to finish
         } catch (err) {
             setLoading(false);
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
@@ -27,9 +39,54 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
         }
     };
 
+
     return (
         <div className="auth-page">
-            <div className="auth-card anim-formRise">
+            <AnimatePresence>
+                {loginSuccess && (
+                    <motion.div 
+                        initial={{ clipPath: 'circle(0% at 50% 50%)' }}
+                        animate={{ clipPath: 'circle(150% at 50% 50%)' }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100vw',
+                            height: '100vh',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            zIndex: 9999,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            flexDirection: 'column',
+                            gap: '20px'
+                        }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                            transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+                            style={{ fontSize: '4rem' }}
+                        >
+                            🛡️
+                        </motion.div>
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.6 }}
+                        >
+                            Access Granted
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <div className={`auth-card anim-formRise ${loginSuccess ? 'hidden' : ''}`}>
                 <div className="auth-card-header">
                     <div className="auth-icon">🔐</div>
                     <h1>Welcome Back</h1>

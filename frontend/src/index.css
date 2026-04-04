@@ -45,3 +45,13 @@ code {
 * {
   box-sizing: border-box;
 }
+
+/* Custom Cursor Rules */
+@media (pointer: fine) {
+  body, a, button, select, .clickable {
+    cursor: none !important;
+  }
+  input, textarea {
+    cursor: text !important;
+  }
+}

@@ -1,34 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminShell from '../../Components/admin/AdminShell';
-
-const defaultCategories = [
-  { id: 1, name: 'Electronics', count: 15, icon: '💻' },
-  { id: 2, name: 'ID Cards', count: 8, icon: '🪪' },
-  { id: 3, name: 'Books/Notes', count: 6, icon: '📚' },
-  { id: 4, name: 'Clothing', count: 4, icon: '👕' },
-  { id: 5, name: 'Accessories', count: 3, icon: '⌚' },
-  { id: 6, name: 'Others', count: 7, icon: '📦' },
-];
+import api from '../../services/api';
 
 const AdminCategories = () => {
-  const [categories, setCategories] = useState(defaultCategories);
+  const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
   const [editId, setEditId] = useState(null);
   const [editName, setEditName] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const handleAdd = () => {
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const response = await api.get('/categories');
+        setCategories(response.data);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCats();
+  }, []);
+
+  const handleAdd = async () => {
     if (!newCategory.trim()) return;
-    setCategories(prev => [...prev, {
-      id: Date.now(),
-      name: newCategory.trim(),
-      count: 0,
-      icon: '🏷️',
-    }]);
-    setNewCategory('');
+    try {
+      const response = await api.post('/categories', { name: newCategory.trim(), icon: '🏷️' });
+      setCategories(prev => [...prev, response.data]);
+      setNewCategory('');
+    } catch (err) {
+      console.error("Failed to add category", err);
+    }
   };
 
-  const handleDelete = (id) => {
-    setCategories(prev => prev.filter(c => c.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/categories/${id}`);
+      setCategories(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      console.error("Failed to delete category", err);
+    }
   };
 
   const handleEdit = (cat) => {
@@ -36,14 +48,23 @@ const AdminCategories = () => {
     setEditName(cat.name);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editName.trim()) return;
-    setCategories(prev => prev.map(c =>
-      c.id === editId ? { ...c, name: editName.trim() } : c
-    ));
-    setEditId(null);
-    setEditName('');
+    try {
+      const response = await api.put(`/categories/${editId}`, { name: editName.trim() });
+      setCategories(prev => prev.map(c =>
+        c.id === editId ? response.data : c
+      ));
+      setEditId(null);
+      setEditName('');
+    } catch (err) {
+      console.error("Failed to update category", err);
+    }
   };
+
+  if (loading) {
+    return <AdminShell pageTitle="Categories"><div>Loading...</div></AdminShell>;
+  }
 
   return (
     <AdminShell pageTitle="Categories">

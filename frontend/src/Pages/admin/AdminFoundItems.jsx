@@ -1,27 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminShell from '../../Components/admin/AdminShell';
-
-const mockFoundItems = [
-  { id: 2, name: "iPhone 13", status: "FOUND", category: "electronics", location: "Canteen", date: "2026-02-13", image: "/images/Img 2.jpg" },
-  { id: 4, name: "Blue Umbrella", status: "FOUND", category: "others", location: "Main Gate", date: "2026-02-11", image: "" },
-  { id: 6, name: "Calculator", status: "SECURED", category: "electronics", location: "Lab 401", date: "2026-02-09", image: "" },
-];
+import api from '../../services/api';
 
 const AdminFoundItems = () => {
-  const [items, setItems] = useState(mockFoundItems);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '', category: '', location: '', date: '', description: '', status: 'FOUND',
   });
 
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await api.get('/items?type=found');
+        setItems(response.data);
+      } catch (err) {
+        console.error("Failed to load found items", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
+  }, []);
+
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setItems(prev => [...prev, { ...formData, id: Date.now(), image: '' }]);
-    setShowModal(false);
-    setFormData({ name: '', category: '', location: '', date: '', description: '', status: 'FOUND' });
+    try {
+      const response = await api.post('/items/found', {
+        itemName: formData.name,
+        category: formData.category,
+        location: formData.location,
+        date: formData.date,
+        description: formData.description
+      });
+      setItems(prev => [...prev, response.data]);
+      setShowModal(false);
+      setFormData({ name: '', category: '', location: '', date: '', description: '', status: 'FOUND' });
+    } catch (err) {
+      console.error("Failed to report found item", err);
+      alert("Failed to add item.");
+    }
   };
 
   return (
@@ -36,8 +58,8 @@ const AdminFoundItems = () => {
         {items.map((item, index) => (
           <div className="theme-card anim-cardReveal" key={item.id} style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}>
             <div className="card-image-field">
-              {item.image ? (
-                <img src={item.image} alt={item.name} className="item-img-render" />
+              {item.imageUrl ? (
+                <img src={item.imageUrl} alt={item.itemName} className="item-img-render" />
               ) : (
                 <div style={{ 
                   width: '100%', height: '100%', 
@@ -50,7 +72,7 @@ const AdminFoundItems = () => {
               <span className="status-badge" style={{ background: item.status === 'SECURED' ? '#28a745' : '#667eea' }}>{item.status}</span>
             </div>
             <div className="card-info" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>
-              <h4 style={{ color: '#120058', marginBottom: '8px' }}>{item.name}</h4>
+              <h4 style={{ color: '#120058', marginBottom: '8px' }}>{item.itemName}</h4>
               <p style={{ color: '#764ba2', fontSize: '14px' }}>📍 {item.location}</p>
               <p style={{ color: '#764ba2', fontSize: '14px' }}>📅 {item.date}</p>
               <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>

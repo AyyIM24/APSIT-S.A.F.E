@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import WizardProgress from '../Components/WizardProgress';
+import api from '../services/api';
 
 const stepVariants = {
   enter:  dir => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
@@ -12,6 +13,7 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     itemName: '', category: '', location: '',
     date: '', description: '', image: null,
@@ -22,10 +24,32 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
   const goBack = () => { setDirection(-1); setCurrentStep(s => s - 1); };
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Found Item Reported:", formData);
-    setSubmitted(true);
+    setIsSubmitting(true);
+    
+    try {
+      // Create request payload mapped to backend ItemRequest
+      const reqPayload = {
+        itemName: formData.itemName,
+        category: formData.category,
+        location: formData.location,
+        date: formData.date,
+        description: formData.description,
+        contactName: formData.contactName,
+        contactPhone: formData.contactPhone,
+        contactEmail: formData.contactEmail
+      };
+      
+      const response = await api.post('/items/found', reqPayload);
+      console.log("Found item reported successfully", response.data);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Failed to report found item", err);
+      alert("Failed to submit report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

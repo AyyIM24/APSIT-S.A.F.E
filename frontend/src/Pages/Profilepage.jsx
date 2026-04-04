@@ -1,16 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 
 const ProfilePage = ({ isLoggedIn, setIsLoggedIn }) => {
-  const [userProfile] = useState({
-    name: "Ayyan Muqadam",
-    email: "student@apsit.edu.in",
-    branch: "Information Technology",
-    year: "Second Year",
-    rollNo: "IT-202X-XXX",
-    phone: "+91 8591752540"
-  });
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('/users/me'); // Assuming backend has this
+        setUserProfile({
+          name: response.data.name || "Ayyan Muqadam",
+          email: response.data.email || "student@apsit.edu.in",
+          branch: "Information Technology",
+          year: "Second Year",
+          rollNo: "IT-202X-XXX",
+          phone: "+91 8591752540"
+        });
+      } catch (err) {
+        console.error("Failed to fetch profile", err);
+        // Fallback for demo
+        setUserProfile({
+          name: "Ayyan Muqadam",
+          email: "student@apsit.edu.in",
+          branch: "Information Technology",
+          year: "Second Year",
+          rollNo: "IT-202X-XXX",
+          phone: "+91 8591752540"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  if (loading || !userProfile) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', fontSize: '2rem' }}>Loading profile...</div>;
+  }
 
   return (
+
     <div className="report-root">
       <main className="profile-container-main">
         <div className="profile-card-aesthetic anim-cardReveal">

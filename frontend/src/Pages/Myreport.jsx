@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 
 const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
-  const [myReports] = useState([
-    { id: 1, name: "Blue HP Laptop", date: "2026-02-14", status: "Verified", location: "Library", type: "Found" },
-    { id: 3, name: "APSIT ID Card", date: "2026-02-12", status: "Pending", location: "Lab 402", type: "Found" },
-    { id: 5, name: "Data Structures Notes", date: "2026-02-10", status: "Pending", location: "Seminar Hall", type: "Lost" },
-  ]);
+  const [myReports, setMyReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await api.get('/items/my-reports');
+        setMyReports(response.data);
+      } catch (err) {
+        console.error("Failed to load your reports:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
+  }, []);
 
   return (
     <div className="report-root">
@@ -15,84 +27,90 @@ const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
           <p>Track the status of items you've reported on campus.</p>
         </div>
 
-        {/* Stats */}
-        <div style={{ 
-          display: 'flex', gap: '16px', marginBottom: '30px', justifyContent: 'center',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ 
-            background: 'rgba(255,255,255,0.05)', 
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '16px', padding: '20px 30px',
-            textAlign: 'center', backdropFilter: 'blur(10px)',
-            minWidth: '140px'
-          }}>
-            <div style={{ fontSize: '2rem', fontWeight: 900, color: 'white' }}>{myReports.length}</div>
-            <div style={{ color: '#a68ada', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Total Reports</div>
-          </div>
-          <div style={{ 
-            background: 'rgba(40,167,69,0.1)', 
-            border: '1px solid rgba(40,167,69,0.2)',
-            borderRadius: '16px', padding: '20px 30px',
-            textAlign: 'center', backdropFilter: 'blur(10px)',
-            minWidth: '140px'
-          }}>
-            <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2ecc71' }}>{myReports.filter(r => r.status === 'Verified').length}</div>
-            <div style={{ color: '#2ecc71', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Verified</div>
-          </div>
-          <div style={{ 
-            background: 'rgba(255,193,7,0.1)', 
-            border: '1px solid rgba(255,193,7,0.2)',
-            borderRadius: '16px', padding: '20px 30px',
-            textAlign: 'center', backdropFilter: 'blur(10px)',
-            minWidth: '140px'
-          }}>
-            <div style={{ fontSize: '2rem', fontWeight: 900, color: '#f1c40f' }}>{myReports.filter(r => r.status === 'Pending').length}</div>
-            <div style={{ color: '#f1c40f', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Pending</div>
-          </div>
-        </div>
+        {loading && <div style={{ color: 'white', textAlign: 'center' }}>Loading your reports...</div>}
+        
+        {!loading && (
+          <>
+            {/* Stats */}
+            <div style={{ 
+              display: 'flex', gap: '16px', marginBottom: '30px', justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '16px', padding: '20px 30px',
+                textAlign: 'center', backdropFilter: 'blur(10px)',
+                minWidth: '140px'
+              }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: 'white' }}>{myReports.length}</div>
+                <div style={{ color: '#a68ada', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Total Reports</div>
+              </div>
+              <div style={{ 
+                background: 'rgba(40,167,69,0.1)', 
+                border: '1px solid rgba(40,167,69,0.2)',
+                borderRadius: '16px', padding: '20px 30px',
+                textAlign: 'center', backdropFilter: 'blur(10px)',
+                minWidth: '140px'
+              }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#2ecc71' }}>{myReports.filter(r => r.status === 'Verified').length}</div>
+                <div style={{ color: '#2ecc71', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Verified</div>
+              </div>
+              <div style={{ 
+                background: 'rgba(255,193,7,0.1)', 
+                border: '1px solid rgba(255,193,7,0.2)',
+                borderRadius: '16px', padding: '20px 30px',
+                textAlign: 'center', backdropFilter: 'blur(10px)',
+                minWidth: '140px'
+              }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#f1c40f' }}>{myReports.filter(r => r.status === 'Pending').length}</div>
+                <div style={{ color: '#f1c40f', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Pending</div>
+              </div>
+            </div>
 
-        <div className="table-container anim-cardReveal">
-          <table className="aesthetic-table">
-            <thead>
-              <tr>
-                <th>Item Name</th>
-                <th>Type</th>
-                <th>Date Reported</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myReports.map((report, index) => (
-                <tr key={report.id} style={{ animation: `cardReveal 0.4s ${index * 0.08}s ease both` }}>
-                  <td><strong>{report.name}</strong></td>
-                  <td>
-                    <span style={{ 
-                      padding: '4px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
-                      background: report.type === 'Lost' ? 'rgba(220,53,69,0.15)' : 'rgba(102,126,234,0.15)',
-                      color: report.type === 'Lost' ? '#ff6b6b' : '#667eea',
-                      border: `1px solid ${report.type === 'Lost' ? 'rgba(220,53,69,0.3)' : 'rgba(102,126,234,0.3)'}`
-                    }}>
-                      {report.type}
-                    </span>
-                  </td>
-                  <td>{report.date}</td>
-                  <td>{report.location}</td>
-                  <td>
-                    <span className={`status-pill ${report.status.toLowerCase()}`}>
-                      {report.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="view-mini-btn">View →</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            <div className="table-container anim-cardReveal">
+              <table className="aesthetic-table">
+                <thead>
+                  <tr>
+                    <th>Item Name</th>
+                    <th>Type</th>
+                    <th>Date Reported</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {myReports.map((report, index) => (
+                    <tr key={report.id} style={{ animation: `cardReveal 0.4s ${index * 0.08}s ease both` }}>
+                      <td><strong>{report.itemName}</strong></td>
+                      <td>
+                        <span style={{ 
+                          padding: '4px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
+                          background: report.type?.toLowerCase() === 'lost' ? 'rgba(220,53,69,0.15)' : 'rgba(102,126,234,0.15)',
+                          color: report.type?.toLowerCase() === 'lost' ? '#ff6b6b' : '#667eea',
+                          border: `1px solid ${report.type?.toLowerCase() === 'lost' ? 'rgba(220,53,69,0.3)' : 'rgba(102,126,234,0.3)'}`
+                        }}>
+                          {report.type}
+                        </span>
+                      </td>
+                      <td>{report.date}</td>
+                      <td>{report.location}</td>
+                      <td>
+                        <span className={`status-pill ${report.status ? report.status.toLowerCase() : 'pending'}`}>
+                          {report.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button className="view-mini-btn">View →</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

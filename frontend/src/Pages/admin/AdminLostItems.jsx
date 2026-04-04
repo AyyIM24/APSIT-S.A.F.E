@@ -1,27 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminShell from '../../Components/admin/AdminShell';
-
-const mockLostItems = [
-  { id: 1, name: "Blue HP Laptop", status: "LOST", category: "electronics", location: "Library 2nd Floor", date: "2026-02-14", image: "/images/Img 1.jpg" },
-  { id: 3, name: "APSIT ID Card", status: "LOST", category: "id-cards", location: "Lab 402", date: "2026-02-12", image: "/images/Img 3.jpeg" },
-  { id: 5, name: "Data Structures Notes", status: "LOST", category: "books", location: "Seminar Hall", date: "2026-02-10", image: "" },
-];
+import api from '../../services/api';
 
 const AdminLostItems = () => {
-  const [items, setItems] = useState(mockLostItems);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '', category: '', location: '', date: '', description: '',
   });
 
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await api.get('/items?type=lost');
+        setItems(response.data);
+      } catch (err) {
+        console.error("Failed to load lost items", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
+  }, []);
+
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setItems(prev => [...prev, { ...formData, id: Date.now(), status: 'LOST', image: '' }]);
-    setShowModal(false);
-    setFormData({ name: '', category: '', location: '', date: '', description: '' });
+    try {
+      const response = await api.post('/items/lost', {
+        itemName: formData.name,
+        category: formData.category,
+        location: formData.location,
+        date: formData.date,
+        description: formData.description
+      });
+      setItems(prev => [...prev, response.data]);
+      setShowModal(false);
+      setFormData({ name: '', category: '', location: '', date: '', description: '' });
+    } catch (err) {
+      console.error("Failed to report lost item", err);
+      alert("Failed to add item.");
+    }
   };
 
   return (
@@ -35,11 +57,11 @@ const AdminLostItems = () => {
         {items.map((item, index) => (
           <div className="theme-card anim-cardReveal" key={item.id} style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}>
             <div className="card-image-field">
-              {item.image && <img src={item.image} alt={item.name} className="item-img-render" />}
+              {item.imageUrl && <img src={item.imageUrl} alt={item.itemName} className="item-img-render" />}
               <span className="status-badge" style={{ background: '#dc3545' }}>{item.status}</span>
             </div>
             <div className="card-info" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>
-              <h4 style={{ color: '#120058', marginBottom: '8px' }}>{item.name}</h4>
+              <h4 style={{ color: '#120058', marginBottom: '8px' }}>{item.itemName}</h4>
               <p style={{ color: '#764ba2', fontSize: '14px' }}>📍 {item.location}</p>
               <p style={{ color: '#764ba2', fontSize: '14px' }}>📅 {item.date}</p>
               <Link to={`/item/${item.id}`}><button className="btn-gradient-card" style={{ width: '100%', marginTop: '12px' }}>View Details</button></Link>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import WizardProgress from '../Components/WizardProgress';
+import api from '../services/api';
 
 const stepVariants = {
   enter:  dir => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
@@ -8,10 +9,26 @@ const stepVariants = {
   exit:   dir => ({ x: dir < 0 ? 300 : -300, opacity: 0, transition: { duration: 0.3 } }),
 };
 
+const draw = {
+  hidden: { pathLength: 0, opacity: 0 },
+  visible: (i) => {
+    const delay = 1 + i * 0.5;
+    return {
+      pathLength: 1,
+      opacity: 1,
+      transition: {
+        pathLength: { delay, type: "spring", duration: 1.5, bounce: 0 },
+        opacity: { delay, duration: 0.01 }
+      }
+    };
+  }
+};
+
 const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     itemName: '', category: '', location: '',
     date: '', description: '', image: null,
@@ -22,10 +39,32 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
   const goBack = () => { setDirection(-1); setCurrentStep(s => s - 1); };
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Item Reported:", formData);
-    setSubmitted(true);
+    setIsSubmitting(true);
+    
+    try {
+      // Create request payload mapped to backend ItemRequest
+      const reqPayload = {
+        itemName: formData.itemName,
+        category: formData.category,
+        location: formData.location,
+        date: formData.date,
+        description: formData.description,
+        contactName: formData.contactName,
+        contactPhone: formData.contactPhone,
+        contactEmail: formData.contactEmail
+      };
+      
+      const response = await api.post('/items/lost', reqPayload);
+      console.log("Lost item reported successfully", response.data);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Failed to report lost item", err);
+      alert("Failed to submit report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -35,12 +74,75 @@ const ReportItem = ({ isLoggedIn, setIsLoggedIn }) => {
 
           {submitted ? (
             <motion.div className="success-state"
-              initial={{ scale: 0, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
-              <div className="success-icon">✅</div>
-              <h3>Report Submitted!</h3>
-              <p>We'll notify you when someone finds your item.</p>
+              transition={{ type: 'spring', stiffness: 200, damping: 25 }}>
+              
+              <motion.svg
+                width="140"
+                height="140"
+                viewBox="0 0 100 100"
+                initial="hidden"
+                animate="visible"
+                style={{ margin: '0 auto 20px auto', display: 'block', overflow: 'visible' }}
+              >
+                <motion.circle
+                  cx="50"
+                  cy="50"
+                  r="42"
+                  stroke="url(#gradient)"
+                  strokeWidth="6"
+                  fill="rgba(102, 126, 234, 0.1)"
+                  variants={draw}
+                  custom={0}
+                />
+                <motion.path
+                  d="M 33 52 L 45 64 L 68 38"
+                  stroke="url(#gradient)"
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                  variants={draw}
+                  custom={0.8}
+                />
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#667eea" />
+                    <stop offset="100%" stopColor="#764ba2" />
+                  </linearGradient>
+                </defs>
+              </motion.svg>
+
+              <motion.h3
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 1.8, duration: 0.4 }}
+              >
+                Report Submitted!
+              </motion.h3>
+              <motion.p
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 2.1, duration: 0.4 }}
+              >
+                We'll notify you when someone finds your item.
+              </motion.p>
+              
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 2.5, type: 'spring' }}
+                style={{ marginTop: '30px' }}
+              >
+                <button 
+                  className="btn-gradient-card"
+                  onClick={() => window.location.href = '/discovery'}
+                  style={{ padding: '12px 30px' }}
+                >
+                  Return to Discovery Hub
+                </button>
+              </motion.div>
             </motion.div>
           ) : (
             <>
