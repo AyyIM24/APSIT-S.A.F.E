@@ -27,6 +27,12 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private NotificationService notificationService;
+
     public LoginResponse registerUser(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
@@ -40,19 +46,33 @@ public class AuthService {
                 .branch(request.getBranch())
                 .year(request.getYear())
                 .rollNo(request.getRollNo())
+                .isEmailVerified(false)
                 .build();
 
         user = userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail(), "USER", user.getId());
+        // Send OTP for email verification
+        try {
+            otpService.generateAndSendOtp(user);
+        } catch (Exception e) {
+            System.err.println("Failed to send OTP: " + e.getMessage());
+        }
 
+        // Notify admins about new registration
+        try {
+            notificationService.notifyNewUserRegistered(user);
+        } catch (Exception e) {
+            System.err.println("Failed to send registration notification: " + e.getMessage());
+        }
+
+        // Return response with requiresOtp=true — NO JWT yet
         return LoginResponse.builder()
-                .token(token)
+                .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
-                .userId(user.getId())
                 .role("USER")
-                .message("Registration successful")
+                .message("Registration successful. Check your email for a verification code.")
+                .requiresOtp(true)
                 .build();
     }
 
@@ -66,6 +86,11 @@ public class AuthService {
 
         if ("suspended".equals(user.getStatus())) {
             throw new RuntimeException("Account is suspended. Contact admin.");
+        }
+
+        // Check email verification
+        if (user.getIsEmailVerified() == null || !user.getIsEmailVerified()) {
+            throw new RuntimeException("EMAIL_NOT_VERIFIED");
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), "USER", user.getId());

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api, { authService } from '../services/api';
+import GoogleSignInButton from '../Components/GoogleSignInButton';
 
 const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
     const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
 
         try {
             const response = await api.post('/auth/login', { email, password });
-            authService.setAuth(response.data.token, { email, role: 'ROLE_USER' });
+            authService.setAuth(response.data.token, { email, name: response.data.name, role: 'ROLE_USER' });
             
             // Still call parent to update App state if needed
             if (onLogin) await onLogin({ email, password });
@@ -31,8 +32,21 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
             }, 1200); // Delay navigation to allow animation to finish
         } catch (err) {
             setLoading(false);
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                setError('Invalid email or password.');
+
+            if (err.response) {
+                // Handle unverified email — redirect to OTP page
+                if (err.response.status === 403 && err.response.data?.requiresOtp) {
+                    navigate('/verify-otp', {
+                        state: {
+                            userId: err.response.data.userId,
+                            email: email
+                        }
+                    });
+                    return;
+                }
+
+                // Regular auth errors
+                setError(err.response.data?.error || 'Invalid email or password.');
             } else {
                 setError('Login failed. Please try again.');
             }
@@ -136,6 +150,21 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
                         )}
                     </button>
                 </form>
+
+                {/* Divider */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    margin: '20px 0',
+                    gap: '12px'
+                }}>
+                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+                    <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontWeight: 600 }}>or</span>
+                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+                </div>
+
+                {/* Google Sign-In */}
+                <GoogleSignInButton setIsLoggedIn={setIsLoggedIn} onLogin={onLogin} />
 
                 <div className="auth-footer">
                     <p>Don't have an account?</p>

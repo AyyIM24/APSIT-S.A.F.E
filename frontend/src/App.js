@@ -6,7 +6,7 @@ import './animations.css';
 
 // Shared Components
 import ThreeBackground from './Components/ThreeBackground';
-import CustomCursor from './Components/CustomCursor';
+// CustomCursor removed — using normal browser cursor
 import PageTransitionWrapper from './Components/PageTransitionWrapper';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
@@ -16,6 +16,7 @@ import { ProtectedRoute, AdminRoute } from './Components/ProtectedRoute';
 import HomePage from './Pages/HomePage';
 import LoginPage from './Pages/LoginPage';
 import RegisterPage from './Pages/RegisterPage';
+import VerifyOtpPage from './Pages/VerifyOtpPage';
 import DiscoveryHub from './Pages/DiscoveryHub';
 import ItemDetail from './Pages/ItemDetail';
 import MyReports from './Pages/Myreport';
@@ -60,7 +61,6 @@ function AppContent() {
 
   return (
     <>
-      <CustomCursor />
       <ThreeBackground />
 
       <div className="app-container">
@@ -74,6 +74,7 @@ function AppContent() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage onLogin={handleLogin} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />} />
             <Route path="/register" element={<RegisterPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/verify-otp" element={<VerifyOtpPage setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/discovery" element={<DiscoveryHub isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/item/:id" element={<ItemDetail isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
 

@@ -23,7 +23,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     @JsonIgnore
     private String password;
 
@@ -39,6 +39,13 @@ public class User {
     @Column(nullable = false)
     @Builder.Default
     private String status = "active";
+
+    @Column(name = "is_email_verified")
+    @Builder.Default
+    private Boolean isEmailVerified = false;
+
+    @Column(name = "google_sub", length = 100)
+    private String googleSub;
 
     @Column(name = "created_at", updatable = false)
     @Builder.Default

@@ -1,14 +1,18 @@
 package com.apsitsafe.service;
 
+import com.apsitsafe.model.Admin;
 import com.apsitsafe.model.ClaimRequest;
 import com.apsitsafe.model.Item;
 import com.apsitsafe.model.Notification;
+import com.apsitsafe.model.User;
+import com.apsitsafe.repository.AdminRepository;
 import com.apsitsafe.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -16,6 +20,15 @@ public class NotificationService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
+
+    @Value("${app.mail.enabled:false}")
+    private boolean mailEnabled;
 
     // ===== EVENT NOTIFICATIONS =====
 
@@ -32,6 +45,12 @@ public class NotificationService {
                 .itemId(item.getId())
                 .build();
         notificationRepository.save(notification);
+
+        // Send email to all admins
+        sendEmailToAllAdmins(
+                "New Found Item Reported",
+                "A found item \"" + item.getItemName() + "\" has been reported at " + item.getLocation() + ". Please review and secure it."
+        );
     }
 
     /**
@@ -47,6 +66,11 @@ public class NotificationService {
                 .itemId(claim.getItem().getId())
                 .build();
         notificationRepository.save(notification);
+
+        sendEmailToAllAdmins(
+                "New Claim Request",
+                claim.getClaimedByName() + " has submitted a claim for \"" + claim.getItem().getItemName() + "\". Please review their proof."
+        );
     }
 
     /**
@@ -64,6 +88,15 @@ public class NotificationService {
                 .itemId(claim.getItem().getId())
                 .build();
         notificationRepository.save(notification);
+
+        sendEmailIfEnabled(
+                claim.getClaimedBy().getEmail(),
+                "Claim Approved!",
+                "Hello " + claim.getClaimedBy().getName() + ",\n\n"
+                        + "Your claim for \"" + claim.getItem().getItemName() + "\" has been approved.\n"
+                        + "Show the QR code to the admin to collect your item.\n\n"
+                        + "— APSIT S.A.F.E Team"
+        );
     }
 
     /**
@@ -81,6 +114,15 @@ public class NotificationService {
                 .itemId(claim.getItem().getId())
                 .build();
         notificationRepository.save(notification);
+
+        sendEmailIfEnabled(
+                claim.getClaimedBy().getEmail(),
+                "Claim Not Approved",
+                "Hello " + claim.getClaimedBy().getName() + ",\n\n"
+                        + "Your claim for \"" + claim.getItem().getItemName() + "\" was reviewed and not approved.\n"
+                        + "If you believe this is incorrect, please submit a new claim with additional proof.\n\n"
+                        + "— APSIT S.A.F.E Team"
+        );
     }
 
     /**
@@ -98,6 +140,15 @@ public class NotificationService {
                     .itemId(claim.getItem().getId())
                     .build();
             notificationRepository.save(claimerNotif);
+
+            sendEmailIfEnabled(
+                    claim.getClaimedBy().getEmail(),
+                    "Item Picked Up Successfully",
+                    "Hello " + claim.getClaimedBy().getName() + ",\n\n"
+                            + "You have successfully picked up \"" + claim.getItem().getItemName() + "\".\n"
+                            + "Thank you for using APSIT S.A.F.E!\n\n"
+                            + "— APSIT S.A.F.E Team"
+            );
         }
 
         // Notify the person who originally reported finding the item
@@ -114,8 +165,36 @@ public class NotificationService {
                         .itemId(claim.getItem().getId())
                         .build();
                 notificationRepository.save(reporterNotif);
+
+                sendEmailIfEnabled(
+                        claim.getItem().getReportedBy().getEmail(),
+                        "Item Returned to Owner",
+                        "Hello " + claim.getItem().getReportedBy().getName() + ",\n\n"
+                                + "The item \"" + claim.getItem().getItemName() + "\" that you reported has been picked up by its owner.\n"
+                                + "Thank you for helping!\n\n"
+                                + "— APSIT S.A.F.E Team"
+                );
             }
         }
+    }
+
+    /**
+     * When a new user registers → notify all admins
+     */
+    public void notifyNewUserRegistered(User user) {
+        Notification notification = Notification.builder()
+                .userId(null) // broadcast to all admins
+                .userType("ADMIN")
+                .title("New Student Registered")
+                .message(user.getName() + " (" + user.getEmail() + ") has registered on APSIT S.A.F.E.")
+                .type("USER_REGISTERED")
+                .build();
+        notificationRepository.save(notification);
+
+        sendEmailToAllAdmins(
+                "New Student Registered",
+                user.getName() + " (" + user.getEmail() + ") has registered on APSIT S.A.F.E."
+        );
     }
 
     // ===== QUERY METHODS =====
@@ -181,6 +260,40 @@ public class NotificationService {
                 n.setIsRead(true);
                 notificationRepository.save(n);
             }
+        }
+    }
+
+    // ===== EMAIL HELPERS =====
+
+    /**
+     * Send email to a single recipient if mail is enabled.
+     */
+    private void sendEmailIfEnabled(String toEmail, String subject, String body) {
+        if (!mailEnabled || mailSender == null || toEmail == null) return;
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(toEmail);
+            message.setSubject("[APSIT S.A.F.E] " + subject);
+            message.setText(body);
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Send email to all admins if mail is enabled.
+     */
+    private void sendEmailToAllAdmins(String subject, String body) {
+        if (!mailEnabled || mailSender == null) return;
+        try {
+            List<Admin> admins = adminRepository.findAll();
+            for (Admin admin : admins) {
+                sendEmailIfEnabled(admin.getEmail(), subject,
+                        "Hello " + admin.getName() + ",\n\n" + body + "\n\n— APSIT S.A.F.E System");
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send admin email notifications: " + e.getMessage());
         }
     }
 }

@@ -1,0 +1,15 @@
+﻿id	email	is_email_verified
+1	ayyan@apsit.edu.in	
+2	rahul@apsit.edu.in	
+3	priya@apsit.edu.in	
+4	amit@apsit.edu.in	
+5	bishnupriya@apsit.edu.in	
+6	bishnu@apsit.edu.in	
+7	24104015@apsit.edu.in	
+8	tempuser99@apsit.edu.in	
+9	testfix@apsit.edu.in	
+10	24104136@apsit.edu.in	
+11	24104009@apsit.edu.in	\0
+12	testcurl@apsit.edu.in	\0
+13	newstudent@apsit.edu.in	\0
+14	24104046@apsit.edu.in	\0

@@ -157,16 +157,6 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                                     className="notification-bell-btn"
                                     onClick={handleBellClick}
                                     aria-label="Notifications"
-                                    style={{
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        position: 'relative',
-                                        fontSize: '1.3rem',
-                                        padding: '6px',
-                                        color: 'white',
-                                        transition: 'transform 0.2s ease'
-                                    }}
                                 >
                                     🔔
                                     {unreadCount > 0 && (
@@ -193,21 +183,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                                 </button>
 
                                 {showNotifications && (
-                                    <div className="notification-panel" style={{
-                                        position: 'absolute',
-                                        top: '100%',
-                                        right: '0',
-                                        width: '360px',
-                                        maxHeight: '450px',
-                                        overflowY: 'auto',
-                                        background: 'rgba(18, 0, 88, 0.95)',
-                                        backdropFilter: 'blur(20px)',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        borderRadius: '16px',
-                                        boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-                                        zIndex: 1000,
-                                        marginTop: '12px'
-                                    }}>
+                                    <div className="notification-panel">
                                         {/* Panel Header */}
                                         <div style={{
                                             display: 'flex',

@@ -1,16 +1,23 @@
 package com.apsitsafe.controller;
 
-import com.apsitsafe.dto.LoginRequest;
-import com.apsitsafe.dto.LoginResponse;
-import com.apsitsafe.dto.RegisterRequest;
+import com.apsitsafe.config.JwtUtil;
+import com.apsitsafe.dto.*;
+import com.apsitsafe.model.User;
+import com.apsitsafe.repository.UserRepository;
 import com.apsitsafe.service.AuthService;
+import com.apsitsafe.service.GoogleAuthService;
+import com.apsitsafe.service.OtpService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,6 +25,26 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private GoogleAuthService googleAuthService;
+
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Value("${apsit.allowed.domain:apsit.edu.in}")
+    private String allowedDomain;
+
+    // ==================== EXISTING ENDPOINTS ====================
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -35,7 +62,30 @@ public class AuthController {
             LoginResponse response = authService.loginUser(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+            String msg = e.getMessage();
+
+            // Special handling for unverified email
+            if ("EMAIL_NOT_VERIFIED".equals(msg)) {
+                User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+                Long uid = user != null ? user.getId() : null;
+
+                // Auto-resend OTP for convenience
+                if (user != null) {
+                    try {
+                        otpService.generateAndSendOtp(user);
+                    } catch (Exception ex) {
+                        System.err.println("Failed to resend OTP on login: " + ex.getMessage());
+                    }
+                }
+
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                        "error", "Email not verified. Please check your email for the verification code.",
+                        "requiresOtp", true,
+                        "userId", uid != null ? uid : 0
+                ));
+            }
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", msg));
         }
     }
 
@@ -46,6 +96,103 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ==================== GOOGLE OAUTH ====================
+
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
+        try {
+            // 1. Verify Google ID token
+            GoogleIdToken.Payload payload = googleAuthService.verifyGoogleToken(request.getIdToken());
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+            String googleSub = payload.getSubject();
+
+            // 2. Domain restriction
+            if (email == null || !email.endsWith("@" + allowedDomain)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Only @" + allowedDomain + " email addresses are allowed"));
+            }
+
+            // 3. Check if user exists
+            User user = userRepository.findByEmail(email).orElse(null);
+
+            if (user == null) {
+                // Create new user from Google data
+                user = User.builder()
+                        .name(name != null ? name : email.split("@")[0])
+                        .email(email)
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .googleSub(googleSub)
+                        .isEmailVerified(true) // Google already verified their email
+                        .build();
+                user = userRepository.save(user);
+            } else {
+                // Update Google sub if not set
+                if (user.getGoogleSub() == null) {
+                    user.setGoogleSub(googleSub);
+                }
+                // Mark as verified since Google confirmed their email
+                if (!Boolean.TRUE.equals(user.getIsEmailVerified())) {
+                    user.setIsEmailVerified(true);
+                }
+                user = userRepository.save(user);
+            }
+
+            // 4. Generate JWT
+            String token = jwtUtil.generateToken(user.getEmail(), "USER", user.getId());
+
+            return ResponseEntity.ok(LoginResponse.builder()
+                    .token(token)
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .userId(user.getId())
+                    .role("USER")
+                    .message("Google login successful")
+                    .build());
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ==================== OTP VERIFICATION ====================
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpRequest request) {
+        try {
+            otpService.verifyOtp(request.getUserId(), request.getOtpCode());
+
+            // OTP verified — generate JWT
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            String token = jwtUtil.generateToken(user.getEmail(), "USER", user.getId());
+
+            return ResponseEntity.ok(LoginResponse.builder()
+                    .token(token)
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .userId(user.getId())
+                    .role("USER")
+                    .message("Email verified successfully")
+                    .build());
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@RequestBody OtpRequest request) {
+        try {
+            otpService.resendOtp(request.getUserId());
+            return ResponseEntity.ok(Map.of("message", "Verification code sent. Check your email."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

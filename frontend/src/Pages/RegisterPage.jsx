@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
+import GoogleSignInButton from '../Components/GoogleSignInButton';
 
 const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
     const [name, setName] = useState('');
@@ -57,7 +58,7 @@ const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
 
         setLoading(true);
         try {
-            await api.post('/auth/register', { 
+            const response = await api.post('/auth/register', { 
                 name, 
                 email, 
                 password,
@@ -66,7 +67,21 @@ const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
                 year,
                 rollNo
             });
+
             setLoading(false);
+
+            // Check if OTP verification is required
+            if (response.data.requiresOtp === true) {
+                navigate('/verify-otp', {
+                    state: {
+                        userId: response.data.userId,
+                        email: email
+                    }
+                });
+                return;
+            }
+
+            // Fallback: original success flow
             setRegisterSuccess(true);
             setTimeout(() => {
                 navigate('/login');
@@ -256,6 +271,21 @@ const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
                         )}
                     </button>
                 </form>
+
+                {/* Divider */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    margin: '20px 0',
+                    gap: '12px'
+                }}>
+                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+                    <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontWeight: 600 }}>or</span>
+                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+                </div>
+
+                {/* Google Sign-In */}
+                <GoogleSignInButton setIsLoggedIn={setIsLoggedIn} />
 
                 <div className="auth-footer">
                     <p>Already have an account?</p>

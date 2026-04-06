@@ -51,19 +51,19 @@ public class DataSeeder implements CommandLineRunner {
         if (!userRepository.existsByEmail("ayyan@apsit.edu.in")) {
             User u1 = userRepository.save(User.builder().name("Ayyan Muqadam").email("ayyan@apsit.edu.in")
                     .password(passwordEncoder.encode("password123")).phone("+91 8591752540")
-                    .branch("Information Technology").year("Second Year").rollNo("IT-2024-001").build());
+                    .branch("Information Technology").year("Second Year").rollNo("IT-2024-001").isEmailVerified(true).build());
             User u2 = userRepository.save(User.builder().name("Rahul Sharma").email("rahul@apsit.edu.in")
                     .password(passwordEncoder.encode("password123")).phone("+91 9876543210")
-                    .branch("Computer Science").year("Third Year").rollNo("CS-2023-045").build());
+                    .branch("Computer Science").year("Third Year").rollNo("CS-2023-045").isEmailVerified(true).build());
             User u3 = userRepository.save(User.builder().name("Priya Patel").email("priya@apsit.edu.in")
                     .password(passwordEncoder.encode("password123")).phone("+91 9123456789")
-                    .branch("Electronics").year("Second Year").rollNo("EC-2024-022").build());
+                    .branch("Electronics").year("Second Year").rollNo("EC-2024-022").isEmailVerified(true).build());
             User u4 = userRepository.save(User.builder().name("Amit Kumar").email("amit@apsit.edu.in")
                     .password(passwordEncoder.encode("password123")).phone("+91 8765432109")
-                    .branch("Mechanical").year("Third Year").rollNo("ME-2023-018").build());
+                    .branch("Mechanical").year("Third Year").rollNo("ME-2023-018").isEmailVerified(true).build());
             User u5 = userRepository.save(User.builder().name("Bishnupriya Mohapatra").email("bishnupriya@apsit.edu.in")
                     .password(passwordEncoder.encode("password123")).phone("+91 7654321098")
-                    .branch("Information Technology").year("Second Year").rollNo("IT-2024-008").build());
+                    .branch("Information Technology").year("Second Year").rollNo("IT-2024-008").isEmailVerified(true).build());
             System.out.println("✅ 5 sample users created");
 
             // Seed Items
