@@ -26,6 +26,9 @@ public class ClaimService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public ClaimRequest submitClaim(ClaimRequestDTO dto, Long userId) {
         Item item = itemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new RuntimeException("Item not found"));
@@ -44,7 +47,16 @@ public class ClaimService {
                 .status("pending")
                 .build();
 
-        return claimRequestRepository.save(claim);
+        claim = claimRequestRepository.save(claim);
+
+        // Notify admins about new claim
+        try {
+            notificationService.notifyAdminsClaimSubmitted(claim);
+        } catch (Exception e) {
+            System.err.println("Failed to send claim notification: " + e.getMessage());
+        }
+
+        return claim;
     }
 
     public List<ClaimRequest> getAllClaims() {
@@ -69,12 +81,21 @@ public class ClaimService {
         String pickupToken = "SAFE-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         claim.setPickupToken(pickupToken);
 
-        // Update item status to RESOLVED
+        // Update item status to SECURED (not RESOLVED — that happens on physical pickup)
         Item item = claim.getItem();
-        item.setStatus("RESOLVED");
+        item.setStatus("SECURED");
         itemRepository.save(item);
 
-        return claimRequestRepository.save(claim);
+        claim = claimRequestRepository.save(claim);
+
+        // Notify the claimer
+        try {
+            notificationService.notifyClaimApproved(claim);
+        } catch (Exception e) {
+            System.err.println("Failed to send approval notification: " + e.getMessage());
+        }
+
+        return claim;
     }
 
     public ClaimRequest rejectClaim(Long claimId) {
@@ -84,7 +105,16 @@ public class ClaimService {
         claim.setStatus("rejected");
         claim.setUpdatedAt(LocalDateTime.now());
 
-        return claimRequestRepository.save(claim);
+        claim = claimRequestRepository.save(claim);
+
+        // Notify the claimer
+        try {
+            notificationService.notifyClaimRejected(claim);
+        } catch (Exception e) {
+            System.err.println("Failed to send rejection notification: " + e.getMessage());
+        }
+
+        return claim;
     }
 
     public ClaimRequest findByPickupToken(String token) {
@@ -106,12 +136,21 @@ public class ClaimService {
         claim.setPickedUpAt(LocalDateTime.now());
         claim.setUpdatedAt(LocalDateTime.now());
 
-        // Update item status
+        // Update item status to RESOLVED (final state — removed from listings)
         Item item = claim.getItem();
-        item.setStatus("PICKED_UP");
+        item.setStatus("RESOLVED");
         itemRepository.save(item);
 
-        return claimRequestRepository.save(claim);
+        claim = claimRequestRepository.save(claim);
+
+        // Notify claimer and item reporter
+        try {
+            notificationService.notifyPickupComplete(claim);
+        } catch (Exception e) {
+            System.err.println("Failed to send pickup notification: " + e.getMessage());
+        }
+
+        return claim;
     }
 
     public List<ClaimRequest> getClaimsByItem(Long itemId) {

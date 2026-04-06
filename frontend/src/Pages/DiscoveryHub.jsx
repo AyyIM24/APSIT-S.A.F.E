@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import api, { getImageUrl, authService } from '../services/api';
 
 const categoryEmoji = {
   electronics: '💻', 'id-cards': '🪪', books: '📚', bags: '🎒',
@@ -15,6 +15,7 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
   
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -30,6 +31,14 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
     fetchItems();
   }, []);
 
+  const handleFoundTabClick = () => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { message: 'Login to see found items' } });
+      return;
+    }
+    setActiveTab('found');
+  };
+
   const filteredItems = items.filter(item => {
     const matchSearch = item.itemName?.toLowerCase().includes(search.toLowerCase()) || 
                        (item.description && item.description.toLowerCase().includes(search.toLowerCase()));
@@ -40,6 +49,40 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
     const matchTab = item.type?.toLowerCase() === activeTab.toLowerCase();
     return matchSearch && matchCategory && matchLocation && matchTab;
   });
+
+  // Status badge renderer
+  const renderStatusBadge = (status) => {
+    if (status === 'SECURED') {
+      return (
+        <span className="status-badge" style={{ 
+          background: 'linear-gradient(135deg, #f39c12, #e67e22)',
+          color: 'white',
+          fontSize: '11px',
+          fontWeight: 700,
+          padding: '4px 10px',
+          borderRadius: '8px'
+        }}>
+          ⏳ Being Collected
+        </span>
+      );
+    }
+    if (status === 'FOUND') {
+      return (
+        <span className="status-badge" style={{ 
+          background: 'linear-gradient(135deg, #667eea, #764ba2)',
+          color: 'white',
+          fontSize: '11px',
+          fontWeight: 700,
+          padding: '4px 10px',
+          borderRadius: '8px'
+        }}>
+          🔍 Found
+        </span>
+      );
+    }
+    // LOST — default styling from CSS
+    return <span className={`status-badge ${status?.toLowerCase()}`}>{status}</span>;
+  };
 
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', fontSize: '2rem' }}>Loading items...</div>;
@@ -132,9 +175,10 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
             </button>
             <button
               className={`toggle-btn ${activeTab === 'found' ? 'active-toggle' : ''}`}
-              onClick={() => setActiveTab('found')}
+              onClick={handleFoundTabClick}
+              style={!isLoggedIn ? { opacity: 0.6 } : {}}
             >
-              🔍 Found Items
+              🔍 Found Items {!isLoggedIn && '🔒'}
             </button>
           </div>
 
@@ -148,13 +192,13 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
                 >
                   <div className="card-image-field">
                     {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.itemName} className="item-img-render" />
+                      <img src={getImageUrl(item.imageUrl)} alt={item.itemName} className="item-img-render" />
                     ) : (
                       <div className="card-emoji-placeholder">
                         {categoryEmoji[item.category] || '📦'}
                       </div>
                     )}
-                    <span className={`status-badge ${item.status?.toLowerCase()}`}>{item.status}</span>
+                    {renderStatusBadge(item.status)}
                     <span className={`type-badge ${item.type?.toLowerCase()}`}>{item.type?.toLowerCase() === 'lost' ? '📦 Lost' : '🔍 Found'}</span>
                   </div>
                   <div className="card-info">
@@ -172,7 +216,11 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
             <div className="no-results">
               <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔍</div>
               <h3 style={{ color: 'white', marginBottom: '8px' }}>No items found</h3>
-              <p>Try adjusting your filters or search term.</p>
+              <p>
+                {activeTab === 'found' && isLoggedIn 
+                  ? "You haven't reported any found items yet." 
+                  : "Try adjusting your filters or search term."}
+              </p>
             </div>
           )}
         </div>

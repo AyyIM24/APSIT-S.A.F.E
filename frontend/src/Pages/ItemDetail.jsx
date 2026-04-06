@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
-import api, { authService } from '../services/api';
+import api, { authService, getImageUrl } from '../services/api';
 
 const draw = {
   hidden: { pathLength: 0, opacity: 0 },
@@ -134,7 +134,7 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
           {/* Image Section */}
           <div className="item-detail-image">
             {item.imageUrl ? (
-              <img src={item.imageUrl} alt={item.itemName} />
+              <img src={getImageUrl(item.imageUrl)} alt={item.itemName} />
             ) : (
               <div className="item-detail-emoji-placeholder">
                 {categoryEmoji[item.category] || '📦'}

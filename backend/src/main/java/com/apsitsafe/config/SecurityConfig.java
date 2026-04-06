@@ -47,6 +47,9 @@ public class SecurityConfig {
                 // QR endpoints
                 .requestMatchers(HttpMethod.GET, "/api/qr/**").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/qr/pickup/**").hasRole("ADMIN")
+                // Notification endpoints
+                .requestMatchers(HttpMethod.GET, "/api/notifications/admin").hasRole("ADMIN")
+                .requestMatchers("/api/notifications/**").authenticated()
                 // Admin endpoints
                 .requestMatchers("/api/admins/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/items/**").hasRole("ADMIN")

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminShell from '../../Components/admin/AdminShell';
-import api from '../../services/api';
+import api, { getImageUrl } from '../../services/api';
 
 const AdminLostItems = () => {
   const [items, setItems] = useState([]);
@@ -57,7 +57,7 @@ const AdminLostItems = () => {
         {items.map((item, index) => (
           <div className="theme-card anim-cardReveal" key={item.id} style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}>
             <div className="card-image-field">
-              {item.imageUrl && <img src={item.imageUrl} alt={item.itemName} className="item-img-render" />}
+              {item.imageUrl && <img src={getImageUrl(item.imageUrl)} alt={item.itemName} className="item-img-render" />}
               <span className="status-badge" style={{ background: '#dc3545' }}>{item.status}</span>
             </div>
             <div className="card-info" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>

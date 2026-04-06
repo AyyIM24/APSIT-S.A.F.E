@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
@@ -24,6 +25,9 @@ public class ItemService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public List<Item> getAllItems() {
         return itemRepository.findAll();
     }
@@ -33,14 +37,43 @@ public class ItemService {
                 .orElseThrow(() -> new RuntimeException("Item not found with id: " + id));
     }
 
-    public List<Item> getFilteredItems(String type, String category, String location, String search) {
+    /**
+     * Get filtered items with visibility rules:
+     * - RESOLVED items are always excluded
+     * - FOUND items are only visible to the user who reported them (or admins via separate endpoint)
+     * - LOST items are always visible to everyone
+     *
+     * @param requestingUserId The userId from JWT (null if not logged in)
+     * @param isAdmin Whether the requesting user has ADMIN role
+     */
+    public List<Item> getFilteredItems(String type, String category, String location, String search,
+                                        Long requestingUserId, boolean isAdmin) {
         // Convert "all" values to null for the query
         String typeFilter = (type == null || type.equalsIgnoreCase("all")) ? null : type.toUpperCase();
         String categoryFilter = (category == null || category.equalsIgnoreCase("all")) ? null : category;
         String locationFilter = (location == null || location.equalsIgnoreCase("all")) ? null : location;
         String searchFilter = (search == null || search.isBlank()) ? null : search;
 
-        return itemRepository.findWithFilters(typeFilter, categoryFilter, locationFilter, searchFilter);
+        List<Item> items = itemRepository.findWithFilters(typeFilter, categoryFilter, locationFilter, searchFilter);
+
+        // Post-filter: visibility rules
+        return items.stream()
+                .filter(item -> {
+                    // Always exclude RESOLVED items from public listings
+                    if ("RESOLVED".equals(item.getStatus())) {
+                        return false;
+                    }
+                    // FOUND items: only visible to the reporter or admins
+                    if ("FOUND".equals(item.getType())) {
+                        if (isAdmin) return true;
+                        if (requestingUserId == null) return false;
+                        if (item.getReportedBy() == null) return false;
+                        return requestingUserId.equals(item.getReportedBy().getId());
+                    }
+                    // LOST items: always visible
+                    return true;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -101,7 +134,17 @@ public class ItemService {
                 .reportedBy(user)
                 .build();
 
-        return itemRepository.save(item);
+        item = itemRepository.save(item);
+
+        // Fire notification to all admins
+        try {
+            notificationService.notifyAdminsItemFound(item);
+        } catch (Exception e) {
+            // Don't fail the report if notification fails
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+
+        return item;
     }
 
     public List<Item> getMyReports(Long userId) {

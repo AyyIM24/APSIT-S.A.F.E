@@ -70,31 +70,37 @@ public class DataSeeder implements CommandLineRunner {
             Item i1 = itemRepository.save(Item.builder().itemName("Blue HP Laptop").type("LOST").status("LOST")
                     .category("electronics").location("Library 2nd Floor").date(LocalDate.of(2026, 2, 14))
                     .description("Blue HP Pavilion laptop with APSIT sticker on lid. Was left on a desk near the window.")
+                    .imageUrl("https://images.unsplash.com/photo-1593642632823-8f785ba67e45?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80")
                     .contactName("Ayyan Muqadam").contactPhone("+91 8591752540").contactEmail("ayyan@apsit.edu.in")
                     .reportedBy(u1).build());
             Item i2 = itemRepository.save(Item.builder().itemName("iPhone 13").type("FOUND").status("FOUND")
                     .category("electronics").location("Canteen").date(LocalDate.of(2026, 2, 13))
                     .description("White iPhone 13 found near the food counter. Has a transparent case with dried flowers.")
+                    .imageUrl("https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80")
                     .contactName("Amit Kumar").contactPhone("+91 8765432109").contactEmail("amit@apsit.edu.in")
                     .reportedBy(u4).build());
             Item i3 = itemRepository.save(Item.builder().itemName("APSIT ID Card").type("LOST").status("LOST")
                     .category("id-cards").location("Lab 402").date(LocalDate.of(2026, 2, 12))
                     .description("Student ID card for IT department. Name partially visible.")
+                    .imageUrl("https://images.unsplash.com/photo-1633265486064-086b219458ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80")
                     .contactName("Rahul Sharma").contactPhone("+91 9876543210").contactEmail("rahul@apsit.edu.in")
                     .reportedBy(u2).build());
             Item i4 = itemRepository.save(Item.builder().itemName("Blue Umbrella").type("FOUND").status("FOUND")
                     .category("others").location("Main Gate").date(LocalDate.of(2026, 2, 11))
                     .description("Blue foldable umbrella found near the main gate security cabin.")
+                    .imageUrl("https://images.unsplash.com/photo-1559132219-c689fccc099a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80")
                     .contactName("Bishnupriya Mohapatra").contactPhone("+91 7654321098").contactEmail("bishnupriya@apsit.edu.in")
                     .reportedBy(u5).build());
             Item i5 = itemRepository.save(Item.builder().itemName("Data Structures Notes").type("LOST").status("LOST")
                     .category("books").location("Seminar Hall").date(LocalDate.of(2026, 2, 10))
                     .description("Handwritten DS notes, about 50 pages, spiral bound. Has name written inside.")
+                    .imageUrl("https://images.unsplash.com/photo-1544816155-12df9643f363?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80")
                     .contactName("Priya Patel").contactPhone("+91 9123456789").contactEmail("priya@apsit.edu.in")
                     .reportedBy(u3).build());
             Item i6 = itemRepository.save(Item.builder().itemName("Calculator").type("FOUND").status("SECURED")
                     .category("electronics").location("Lab 401").date(LocalDate.of(2026, 2, 9))
                     .description("Casio scientific calculator found in Lab 401 after the exam.")
+                    .imageUrl("https://images.unsplash.com/photo-1587145820266-a5951ee6f620?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80")
                     .contactName("Amit Kumar").contactPhone("+91 8765432109").contactEmail("amit@apsit.edu.in")
                     .reportedBy(u4).build());
             System.out.println("✅ 6 sample items created");

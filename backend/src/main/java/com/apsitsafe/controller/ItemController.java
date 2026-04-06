@@ -33,7 +33,12 @@ public class ItemController {
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+            @RequestParam(required = false) Integer size,
+            HttpServletRequest httpRequest) {
+
+        // Extract userId and role from JWT (nullable — public endpoint)
+        Long userId = extractUserId(httpRequest);
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(extractRole(httpRequest));
 
         // If page & size are provided, return paginated results
         if (page != null && size != null) {
@@ -47,8 +52,8 @@ public class ItemController {
             return ResponseEntity.ok(response);
         }
 
-        // Default: return all items (backward compatible)
-        List<Item> items = itemService.getFilteredItems(type, category, location, search);
+        // Default: return filtered items with visibility rules
+        List<Item> items = itemService.getFilteredItems(type, category, location, search, userId, isAdmin);
         return ResponseEntity.ok(items);
     }
 
@@ -137,7 +142,24 @@ public class ItemController {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            return jwtUtil.extractUserId(token);
+            try {
+                return jwtUtil.extractUserId(token);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private String extractRole(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            try {
+                return jwtUtil.extractRole(token);
+            } catch (Exception e) {
+                return null;
+            }
         }
         return null;
     }

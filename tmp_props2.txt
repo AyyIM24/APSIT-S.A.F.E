@@ -1,4 +1,4 @@
-# ========================
+﻿# ========================
 # SERVER CONFIGURATION
 # ========================
 server.port=8080
@@ -6,7 +6,7 @@ server.port=8080
 # ========================
 # MYSQL DATASOURCE
 # ========================
-spring.datasource.url=jdbc:mysql://localhost:3306/apsit_safe_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
+spring.datasource.url=jdbc:mysql://localhost:3306/apsit_safe?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
 spring.datasource.username=root
 spring.datasource.password=aYYU@3102
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
@@ -30,7 +30,7 @@ file.upload-dir=uploads
 # ========================
 # JWT CONFIGURATION
 # ========================
-jwt.secret=${JWT_SECRET:ApsitSafeDefaultDevKeyPleaseChangeInProduction2026!@#$%}
+jwt.secret=ApsitSafeSecretKey2026SuperSecureTokenSigningKeyForJWTAuthentication!@#$%
 jwt.expiration=86400000
 
 # ========================
@@ -38,13 +38,3 @@ jwt.expiration=86400000
 # ========================
 spring.sql.init.mode=always
 spring.jpa.defer-datasource-initialization=true
-
-# ========================
-# CORS CONFIGURATION
-# ========================
-app.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
-
-# ========================
-# QR CODE CONFIGURATION
-# ========================
-app.qr.base-url=${QR_BASE_URL:http://localhost:3000}
