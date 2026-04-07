@@ -24,6 +24,9 @@ import ProfilePage from './Pages/Profilepage';
 import ReportItem from './Pages/ReportItem';
 import Foundpage from './Pages/Foundpage';
 import NotFoundPage from './Pages/NotFoundPage';
+import ForgotPasswordPage from './Pages/ForgotPasswordPage';
+import HowItWorksPage from './Pages/HowItWorksPage';
+import AboutUsPage from './Pages/AboutUsPage';
 
 // Admin Pages
 import AdminLoginPage from './Pages/admin/AdminLoginPage';
@@ -45,6 +48,7 @@ function AppContent() {
 
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHomePage = location.pathname === '/';
+  const isAuthPage = ['/login', '/register', '/verify-otp', '/forgotpassword'].includes(location.pathname);
 
   // Listen for auth:logout events dispatched by the 401 interceptor
   useEffect(() => {
@@ -65,7 +69,7 @@ function AppContent() {
 
       <div className="app-container">
         {!isAdminRoute && !isHomePage && (
-          <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+          <Header isLoggedIn={isAuthPage ? false : isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         )}
 
         <PageTransitionWrapper>
@@ -75,6 +79,9 @@ function AppContent() {
             <Route path="/login" element={<LoginPage onLogin={handleLogin} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />} />
             <Route path="/register" element={<RegisterPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/verify-otp" element={<VerifyOtpPage setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+            <Route path="/howitworks" element={<HowItWorksPage />} />
+            <Route path="/about" element={<AboutUsPage />} />
             <Route path="/discovery" element={<DiscoveryHub isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/item/:id" element={<ItemDetail isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
 

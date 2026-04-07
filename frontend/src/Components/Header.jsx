@@ -150,6 +150,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                             <li><Link to="/report">Lost Items</Link></li>
                             <li><Link to="/found">Found Items</Link></li>
                             <li><Link to="/howitworks">How It Works</Link></li>
+                            <li><Link to="/about">About Us</Link></li>
                             
                             {/* Notification Bell */}
                             <li className="notification-container" ref={notifRef}>

@@ -130,4 +130,37 @@ public class OtpService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         generateAndSendOtp(user);
     }
+
+    /**
+     * Verify OTP without marking user's email as verified.
+     * Used for password reset flow where email is already verified.
+     */
+    public boolean verifyOtpWithoutMarkingVerified(Long userId, String otpCode) {
+        OtpVerification otp = otpRepository.findTopByUserIdAndIsUsedFalseOrderByCreatedAtDesc(userId)
+                .orElseThrow(() -> new RuntimeException("No OTP found. Please request a new one."));
+
+        otp.setAttemptCount(otp.getAttemptCount() + 1);
+
+        if (otp.getAttemptCount() >= 3) {
+            otp.setIsUsed(true);
+            otpRepository.save(otp);
+            throw new RuntimeException("Too many attempts. Please request a new OTP.");
+        }
+
+        if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
+            otp.setIsUsed(true);
+            otpRepository.save(otp);
+            throw new RuntimeException("OTP expired. Please request a new one.");
+        }
+
+        if (!otpCode.equals(otp.getOtpCode())) {
+            otpRepository.save(otp);
+            throw new RuntimeException("Invalid OTP.");
+        }
+
+        otp.setIsUsed(true);
+        otpRepository.save(otp);
+        return true;
+    }
 }
+

@@ -668,11 +668,11 @@
 
 /* ============================================================
    CATCH-ALL — Global text color overrides for light mode
-   Ensures no text is invisible against the light background
+   Uses footer text color (#5e3d8f) instead of white everywhere
    ============================================================ */
 [data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3,
 [data-theme="light"] h4, [data-theme="light"] h5, [data-theme="light"] h6 {
-  color: #2d1b69;
+  color: #2d1b69 !important;
 }
 
 [data-theme="light"] p,
@@ -681,19 +681,449 @@
 [data-theme="light"] td,
 [data-theme="light"] th,
 [data-theme="light"] li {
-  color: #3d2b7a;
+  color: #5e3d8f !important;
 }
 
 [data-theme="light"] a {
-  color: #5e3d8f;
+  color: #5e3d8f !important;
 }
 
 [data-theme="light"] input,
 [data-theme="light"] textarea,
 [data-theme="light"] select {
-  color: #2d1b69;
+  color: #2d1b69 !important;
 }
 
 [data-theme="light"] ::placeholder {
-  color: rgba(45, 27, 105, 0.45);
+  color: rgba(45, 27, 105, 0.45) !important;
 }
+
+/* --- Header & Nav white text overrides --- */
+[data-theme="light"] .title h1 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .title ul a {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .title ul a:hover {
+  color: #2d1b69 !important;
+  text-shadow: none !important;
+}
+[data-theme="light"] .notification-bell-btn {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .avatar {
+  color: #2d1b69 !important;
+  background: rgba(118, 75, 162, 0.12) !important;
+  border-color: rgba(118, 75, 162, 0.3) !important;
+}
+[data-theme="light"] .dropdown-header strong {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .dropdown-list li a {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .dropdown-list li a:hover {
+  color: #2d1b69 !important;
+}
+
+/* --- Footer text — use the dark purple --- */
+[data-theme="light"] .section-p1 .col h4 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .section-p1 .col p,
+[data-theme="light"] .section-p1 .col a {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .section-p1 .follow .icon i {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .copyright {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .last {
+  color: rgba(94, 61, 143, 0.7) !important;
+}
+
+/* --- Discovery Hub --- */
+[data-theme="light"] .hub-title {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .discovery-theme-root {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .search-bar-themed input {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .filter-title {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .toggle-btn {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .toggle-btn:hover {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .toggle-btn.active {
+  color: #120058 !important;
+}
+[data-theme="light"] .filter-chip {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .filter-chip:hover {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .filter-loc-btn {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .filter-loc-btn:hover {
+  color: #2d1b69 !important;
+}
+
+/* --- Card Info --- */
+[data-theme="light"] .card-info h4 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .card-info p {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .no-results {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .theme-input {
+  color: #2d1b69 !important;
+}
+
+/* --- Item Detail --- */
+[data-theme="light"] .item-detail-info {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .item-detail-info h1 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .meta-label {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .meta-value {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .item-detail-desc p {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .detail-info h1 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .info-item p {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .description-box p {
+  color: #5e3d8f !important;
+}
+
+/* --- Report Form --- */
+[data-theme="light"] .report-form-box {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .report-form-box h3 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .file-label {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .info {
+  color: #2d1b69 !important;
+}
+
+/* --- Auth Forms --- */
+[data-theme="light"] .auth-card {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .auth-card-header h1 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .auth-card-header p {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .auth-input-wrapper input {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .auth-footer p {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .auth-link-muted {
+  color: rgba(94, 61, 143, 0.6) !important;
+}
+[data-theme="light"] .auth-link-muted:hover {
+  color: #5e3d8f !important;
+}
+
+/* --- Modal --- */
+[data-theme="light"] .modal-content-aesthetic {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .modal-content-aesthetic textarea {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .modal-content-aesthetic p {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .cancel-btn {
+  color: #5e3d8f !important;
+}
+
+/* --- Reports Page --- */
+[data-theme="light"] .reports-header h1 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .reports-header p {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .aesthetic-table td {
+  color: #5e3d8f !important;
+}
+
+/* --- Profile Page --- */
+[data-theme="light"] .profile-avatar-large {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .profile-header-text h2 {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .detail-item-box span {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .edit-profile-btn {
+  color: #5e3d8f !important;
+}
+
+/* --- Wizard --- */
+[data-theme="light"] .wizard-circle.active {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .wizard-label.active-label {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .wizard-label {
+  color: rgba(94, 61, 143, 0.5) !important;
+}
+
+/* --- Back Button --- */
+[data-theme="light"] .back-btn {
+  color: #5e3d8f !important;
+}
+
+/* --- Part 3 toggle --- */
+[data-theme="light"] .part-3 .toggle-btn {
+  color: #5e3d8f !important;
+}
+
+/* --- Admin text overrides --- */
+[data-theme="light"] .admin-topbar-title,
+[data-theme="light"] .admin-topbar-name,
+[data-theme="light"] .admin-stat-number,
+[data-theme="light"] .admin-chart-title,
+[data-theme="light"] .admin-location-name,
+[data-theme="light"] .admin-table td,
+[data-theme="light"] .admin-category-name,
+[data-theme="light"] .admin-category-count {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .admin-stat-label,
+[data-theme="light"] .admin-modal-form label {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .admin-location-count {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .proof-drawer-title,
+[data-theme="light"] .admin-modal-title {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .admin-search-bar input {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .admin-nav-link {
+  color: #5e3d8f !important;
+}
+[data-theme="light"] .admin-nav-link:hover {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .admin-nav-link.active {
+  color: #2d1b69 !important;
+}
+[data-theme="light"] .admin-sidebar-brand {
+  color: #2d1b69 !important;
+}
+
+/* ============================================================
+   PRESERVE WHITE TEXT on gradient/colored backgrounds
+   These elements have colored backgrounds where white is correct
+   ============================================================ */
+[data-theme="light"] .auth-submit-btn,
+[data-theme="light"] .claim-btn,
+[data-theme="light"] .submit-btn-gradient,
+[data-theme="light"] .search-btn-gradient,
+[data-theme="light"] .btn-gradient-card,
+[data-theme="light"] .view-mini-btn,
+[data-theme="light"] .admin-add-btn,
+[data-theme="light"] .export-btn,
+[data-theme="light"] .status-badge,
+[data-theme="light"] .type-badge,
+[data-theme="light"] .status-badge-large,
+[data-theme="light"] .item-detail-status-badge,
+[data-theme="light"] .filter-chip.active,
+[data-theme="light"] .filter-loc-btn.active,
+[data-theme="light"] .zone-btn.zone-active,
+[data-theme="light"] .wizard-circle.done,
+[data-theme="light"] .found-item-btn:hover {
+  color: white !important;
+}
+[data-theme="light"] .status-pill.verified {
+  color: #2ecc71 !important;
+}
+[data-theme="light"] .status-pill.pending {
+  color: #f1c40f !important;
+}
+
+/* ============================================================
+   LIGHT THEME — How It Works Page
+   ============================================================ */
+
+[data-theme="light"] .hiw-hero p {
+  color: #5e3d8f !important;
+}
+
+[data-theme="light"] .hiw-section-title {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .hiw-step-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(102,126,234,0.15) !important;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.08);
+}
+
+[data-theme="light"] .hiw-step-card:hover {
+  box-shadow: 0 12px 35px rgba(102,126,234,0.15);
+}
+
+[data-theme="light"] .hiw-step-card h3 {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .hiw-step-card p {
+  color: #5e3d8f !important;
+}
+
+[data-theme="light"] .hiw-feature-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(102,126,234,0.15) !important;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.08);
+}
+
+[data-theme="light"] .hiw-feature-card:hover {
+  box-shadow: 0 12px 35px rgba(102,126,234,0.15);
+}
+
+[data-theme="light"] .hiw-feature-card h4 {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .hiw-feature-card p {
+  color: #5e3d8f !important;
+}
+
+[data-theme="light"] .hiw-cta {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(102,126,234,0.15) !important;
+}
+
+[data-theme="light"] .hiw-cta h2 {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .hiw-cta p {
+  color: #5e3d8f !important;
+}
+
+/* ============================================================
+   LIGHT THEME — About Us Page
+   ============================================================ */
+
+[data-theme="light"] .about-college {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(102,126,234,0.15) !important;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.08);
+}
+
+[data-theme="light"] .about-college-info h1 {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .about-college-tagline {
+  color: #764ba2 !important;
+}
+
+[data-theme="light"] .about-college-desc {
+  color: #5e3d8f !important;
+}
+
+[data-theme="light"] .about-project {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(102,126,234,0.15) !important;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.08);
+}
+
+[data-theme="light"] .about-project h2 {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .about-project p {
+  color: #5e3d8f !important;
+}
+
+[data-theme="light"] .tech-badge {
+  background: rgba(102,126,234,0.1) !important;
+  border-color: rgba(102,126,234,0.25) !important;
+  color: #764ba2 !important;
+}
+
+[data-theme="light"] .about-section-title {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .about-team-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(102,126,234,0.15) !important;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.08);
+}
+
+[data-theme="light"] .about-team-card:hover {
+  box-shadow: 0 12px 35px rgba(102,126,234,0.15);
+}
+
+[data-theme="light"] .about-team-card h3 {
+  color: #2d1b69 !important;
+}
+
+[data-theme="light"] .about-team-role {
+  color: #764ba2 !important;
+}
+
+[data-theme="light"] .about-team-phone {
+  color: #5e3d8f !important;
+}
+
+[data-theme="light"] .about-quote {
+  background: rgba(255,255,255,0.8) !important;
+  border-color: rgba(102,126,234,0.12) !important;
+}
+
+[data-theme="light"] .about-quote blockquote {
+  color: #5e3d8f !important;
+}
+
+[data-theme="light"] .about-quote p {
+  color: #764ba2 !important;
+}
+

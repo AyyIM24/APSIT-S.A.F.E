@@ -120,18 +120,28 @@ const VerifyOtpPage = ({ setIsLoggedIn }) => {
         }
     };
 
-    const handleResend = async () => {
-        if (!canResend) return;
+    const [resendSuccess, setResendSuccess] = useState('');
+    const [resendLoading, setResendLoading] = useState(false);
 
+    const handleResend = async () => {
+        if (!canResend || resendLoading) return;
+
+        setResendLoading(true);
+        setResendSuccess('');
         try {
             await api.post('/auth/resend-otp', { userId });
             setOtp(['', '', '', '', '', '']);
             setError('');
             setCanResend(false);
             setResendCooldown(30);
+            setResendSuccess('✅ New verification code sent to your email!');
             inputRefs.current[0]?.focus();
+            // Auto-dismiss after 4 seconds
+            setTimeout(() => setResendSuccess(''), 4000);
         } catch (err) {
             setError('Failed to resend OTP. Please try again.');
+        } finally {
+            setResendLoading(false);
         }
     };
 
@@ -258,6 +268,24 @@ const VerifyOtpPage = ({ setIsLoggedIn }) => {
                     )}
                 </button>
 
+                {/* Resend Success Toast */}
+                {resendSuccess && (
+                    <div style={{
+                        background: 'rgba(40,167,69,0.15)',
+                        border: '1px solid rgba(40,167,69,0.3)',
+                        borderRadius: '14px',
+                        padding: '12px 16px',
+                        textAlign: 'center',
+                        color: '#2ecc71',
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        marginBottom: '12px',
+                        animation: 'fadeIn 0.3s ease'
+                    }}>
+                        {resendSuccess}
+                    </div>
+                )}
+
                 {/* Resend */}
                 <div style={{
                     textAlign: 'center',
@@ -267,17 +295,18 @@ const VerifyOtpPage = ({ setIsLoggedIn }) => {
                     {canResend ? (
                         <button
                             onClick={handleResend}
+                            disabled={resendLoading}
                             style={{
                                 background: 'none',
                                 border: 'none',
-                                color: '#667eea',
-                                cursor: 'pointer',
+                                color: resendLoading ? 'rgba(255,255,255,0.3)' : '#667eea',
+                                cursor: resendLoading ? 'not-allowed' : 'pointer',
                                 fontWeight: 700,
                                 fontSize: '14px',
                                 textDecoration: 'underline',
                             }}
                         >
-                            Resend verification code
+                            {resendLoading ? '⏳ Sending...' : 'Resend verification code'}
                         </button>
                     ) : (
                         <span>
