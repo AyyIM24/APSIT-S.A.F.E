@@ -6,6 +6,7 @@ import com.apsitsafe.model.Item;
 import com.apsitsafe.model.Notification;
 import com.apsitsafe.model.User;
 import com.apsitsafe.repository.AdminRepository;
+import com.apsitsafe.repository.ItemRepository;
 import com.apsitsafe.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,9 @@ public class NotificationService {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
@@ -51,6 +55,49 @@ public class NotificationService {
                 "New Found Item Reported",
                 "A found item \"" + item.getItemName() + "\" has been reported at " + item.getLocation() + ". Please review and secure it."
         );
+    }
+
+    /**
+     * Checks if a newly reported FOUND item matches any LOST items in the same category,
+     * and notifies the users who lost them.
+     */
+    public void checkAndNotifyMatches(Item foundItem) {
+        if (!"FOUND".equals(foundItem.getType())) return;
+
+        // Find LOST items with the same category
+        List<Item> lostItems = itemRepository.findWithFilters("LOST", foundItem.getCategory(), null, null);
+        
+        for (Item lostItem : lostItems) {
+            // Ensure the lost item is not already resolved
+            if ("RESOLVED".equals(lostItem.getStatus())) continue;
+            
+            // Only notify if the reporter of the lost item is valid
+            if (lostItem.getReportedBy() != null) {
+                Long lostReporterId = lostItem.getReportedBy().getId();
+                // Prevent self-notification if same user reports lost then finds it
+                if (foundItem.getReportedBy() != null && foundItem.getReportedBy().getId().equals(lostReporterId)) continue;
+                
+                Notification matchNotif = Notification.builder()
+                        .userId(lostReporterId)
+                        .userType("USER")
+                        .title("Potential Match Found in " + foundItem.getCategory() + "!")
+                        .message("A new item matching the category of your lost '" + lostItem.getItemName() + "' was just reported as found. Check it out on the Discovery Hub!")
+                        .type("ITEM_MATCH")
+                        .itemId(foundItem.getId()) // Link to the new found item
+                        .build();
+                notificationRepository.save(matchNotif);
+
+                sendEmailIfEnabled(
+                        lostItem.getReportedBy().getEmail(),
+                        "Potential Match for your Lost Item",
+                        "Hello " + lostItem.getReportedBy().getName() + ",\n\n"
+                                + "A new item matching the category of your lost '" + lostItem.getItemName() + "' has been reported as FOUND.\n\n"
+                                + "Details: " + foundItem.getItemName() + " near " + foundItem.getLocation() + "\n"
+                                + "Please check the APSIT S.A.F.E Discovery Hub to see if it belongs to you.\n\n"
+                                + "— APSIT S.A.F.E Team"
+                );
+            }
+        }
     }
 
     /**

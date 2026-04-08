@@ -100,7 +100,7 @@ const AdminLoginPage = () => {
               <span className="auth-input-icon">📧</span>
               <input
                 type="email"
-                placeholder="admin@apsit.edu.in"
+                placeholder="Enter admin email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -134,9 +134,7 @@ const AdminLoginPage = () => {
         </form>
 
         <div className="auth-footer">
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
-            Demo credentials: admin@apsit.edu.in / admin123
-          </p>
+          {/* Footer content if any */}
         </div>
       </div>
     </div>

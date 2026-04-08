@@ -120,7 +120,7 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
                             <span className="auth-input-icon">📧</span>
                             <input 
                                 type="email" id="email" 
-                                placeholder="student@apsit.edu.in"
+                                placeholder="Enter your email"
                                 required value={email} 
                                 onChange={(e) => setEmail(e.target.value)} 
                                 disabled={loading} 

@@ -5,7 +5,6 @@ import './styles.css';
 import './animations.css';
 
 // Shared Components
-import ThreeBackground from './Components/ThreeBackground';
 // CustomCursor removed — using normal browser cursor
 import PageTransitionWrapper from './Components/PageTransitionWrapper';
 import Header from './Components/Header';
@@ -65,7 +64,6 @@ function AppContent() {
 
   return (
     <>
-      <ThreeBackground />
 
       <div className="app-container">
         {!isAdminRoute && !isHomePage && (

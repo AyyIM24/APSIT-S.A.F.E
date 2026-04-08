@@ -8,20 +8,6 @@ function HomePage() {
 
   return (
     <div className="home-dark">
-      {/* Floating geometric shapes */}
-      <div className="home-floating-shapes">
-        <div className="floating-shape shape-diamond" style={{ top: '12%', left: '6%' }} />
-        <div className="floating-shape shape-circle" style={{ top: '22%', right: '10%' }} />
-        <div className="floating-shape shape-pill" style={{ top: '55%', left: '12%' }} />
-        <div className="floating-shape shape-ring" style={{ top: '38%', right: '6%' }} />
-        <div className="floating-shape shape-cube" style={{ bottom: '18%', left: '4%' }} />
-        <div className="floating-shape shape-diamond" style={{ bottom: '28%', right: '12%' }} />
-        <div className="floating-shape shape-circle" style={{ top: '8%', left: '42%' }} />
-        <div className="floating-shape shape-pill" style={{ bottom: '12%', right: '28%' }} />
-        <div className="floating-shape shape-ring" style={{ top: '65%', left: '32%' }} />
-        <div className="floating-shape shape-cube" style={{ top: '4%', right: '32%' }} />
-      </div>
-
       <div className="home-content">
         {/* Header Banner */}
         <div className="home-header-banner anim-fadeScale">

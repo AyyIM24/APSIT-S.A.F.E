@@ -139,6 +139,7 @@ public class ItemService {
         // Fire notification to all admins
         try {
             notificationService.notifyAdminsItemFound(item);
+            notificationService.checkAndNotifyMatches(item);
         } catch (Exception e) {
             // Don't fail the report if notification fails
             System.err.println("Failed to send notification: " + e.getMessage());

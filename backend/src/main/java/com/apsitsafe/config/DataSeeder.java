@@ -36,15 +36,15 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Seed Admin
-        if (!adminRepository.existsByEmail("admin@apsit.edu.in")) {
+        if (!adminRepository.existsByEmail("24104015@apsit.edu.in")) {
             Admin admin = Admin.builder()
                     .name("Admin")
-                    .email("admin@apsit.edu.in")
-                    .password(passwordEncoder.encode("admin123"))
+                    .email("24104015@apsit.edu.in")
+                    .password(passwordEncoder.encode("Ayyu@3102"))
                     .role("ADMIN")
                     .build();
             adminRepository.save(admin);
-            System.out.println("✅ Default admin created: admin@apsit.edu.in / admin123");
+            System.out.println("✅ Default admin created: 24104015@apsit.edu.in");
         }
 
         // Seed Users
