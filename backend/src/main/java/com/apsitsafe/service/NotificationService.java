@@ -10,8 +10,9 @@ import com.apsitsafe.repository.ItemRepository;
 import com.apsitsafe.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -54,6 +55,34 @@ public class NotificationService {
         sendEmailToAllAdmins(
                 "New Found Item Reported",
                 "A found item \"" + item.getItemName() + "\" has been reported at " + item.getLocation() + ". Please review and secure it."
+        );
+    }
+
+    /**
+     * When someone reports finding a specific lost item → notify the owner directly
+     */
+    public void notifyOwnerItemFound(Item lostItem, Item foundItem) {
+        if (lostItem.getReportedBy() == null) return;
+
+        Long ownerId = lostItem.getReportedBy().getId();
+
+        Notification notification = Notification.builder()
+                .userId(ownerId)
+                .userType("USER")
+                .title("Your Item Has Been Found! 🎉")
+                .message("Someone found your lost item \"" + lostItem.getItemName() + "\"! Go to the found item to claim it back.")
+                .type("ITEM_FOUND_FOR_OWNER")
+                .itemId(foundItem.getId()) // Link to the FOUND item so owner can claim it
+                .build();
+        notificationRepository.save(notification);
+
+        sendEmailIfEnabled(
+                lostItem.getReportedBy().getEmail(),
+                "Your Lost Item Has Been Found!",
+                "Hello " + lostItem.getReportedBy().getName() + ",<br><br>"
+                        + "Great news! Someone has found your lost item <b>\"" + lostItem.getItemName() + "\"</b>.<br><br>"
+                        + "Please log in to APSIT S.A.F.E and check your notifications to claim it back.<br><br>"
+                        + "— APSIT S.A.F.E Team"
         );
     }
 
@@ -139,9 +168,10 @@ public class NotificationService {
         sendEmailIfEnabled(
                 claim.getClaimedBy().getEmail(),
                 "Claim Approved!",
-                "Hello " + claim.getClaimedBy().getName() + ",\n\n"
-                        + "Your claim for \"" + claim.getItem().getItemName() + "\" has been approved.\n"
-                        + "Show the QR code to the admin to collect your item.\n\n"
+                "Hello <b>" + claim.getClaimedBy().getName() + "</b>,\n\n"
+                        + "Your claim for <b>\"" + claim.getItem().getItemName() + "\"</b> has been approved.\n\n"
+                        + "Show the QR code below to the admin to collect your item:\n\n"
+                        + "<img src=\"https://quickchart.io/qr?text=https://apsit-safe.edu.in/pickup/" + claim.getPickupToken() + "&size=250\" alt=\"Pickup QR Code\" style=\"border: 10px solid white; display: block;\" />\n\n"
                         + "— APSIT S.A.F.E Team"
         );
     }
@@ -318,10 +348,16 @@ public class NotificationService {
     private void sendEmailIfEnabled(String toEmail, String subject, String body) {
         if (!mailEnabled || mailSender == null || toEmail == null) return;
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(toEmail);
-            message.setSubject("[APSIT S.A.F.E] " + subject);
-            message.setText(body);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setTo(toEmail);
+            helper.setSubject("[APSIT S.A.F.E] " + subject);
+            
+            // Convert newlines to HTML breaks if they aren't already tags
+            String htmlBody = body.replace("\n", "<br>");
+            helper.setText(htmlBody, true); // true sets it to HTML format
+            
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println("Failed to send email to " + toEmail + ": " + e.getMessage());

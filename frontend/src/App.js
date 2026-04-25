@@ -33,6 +33,7 @@ import AdminDashboard from './Pages/admin/AdminDashboard';
 import AdminLostItems from './Pages/admin/AdminLostItems';
 import AdminFoundItems from './Pages/admin/AdminFoundItems';
 import AdminClaimRequests from './Pages/admin/AdminClaimRequests';
+import AdminHandedOverItems from './Pages/admin/AdminHandedOverItems';
 import AdminUsers from './Pages/admin/AdminUsers';
 import AdminReports from './Pages/admin/AdminReports';
 import AdminCategories from './Pages/admin/AdminCategories';
@@ -97,6 +98,7 @@ function AppContent() {
             <Route path="/admin/lost" element={<AdminRoute><AdminLostItems /></AdminRoute>} />
             <Route path="/admin/found" element={<AdminRoute><AdminFoundItems /></AdminRoute>} />
             <Route path="/admin/claims" element={<AdminRoute><AdminClaimRequests /></AdminRoute>} />
+            <Route path="/admin/handed-over" element={<AdminRoute><AdminHandedOverItems /></AdminRoute>} />
             <Route path="/admin/admins" element={<AdminRoute><AdminAdmins /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
             <Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />

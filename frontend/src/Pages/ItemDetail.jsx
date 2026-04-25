@@ -126,6 +126,24 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
   const isLost = item.type?.toLowerCase() === 'lost';
+  const isStatusLost = item.status?.toUpperCase() === 'LOST';
+  const isStatusFound = ['FOUND', 'SECURED'].includes(item.status?.toUpperCase());
+  const currentUser = authService.getUser();
+  const isAdmin = authService.isAdmin();
+  const isReporter = currentUser && item.reportedBy?.id === currentUser.id;
+  const canResolve = isReporter || isAdmin;
+
+  const handleMarkFound = async () => {
+    if (window.confirm("Are you sure you want to mark this item as Found? It will move to the Found section and be removed from Lost listings.")) {
+      try {
+        await api.put(`/items/${item.id}/status`, { status: 'FOUND' });
+        alert("Item marked as found successfully! It will now appear in the Found section.");
+        navigate('/discovery');
+      } catch(err) {
+        alert("Failed to update status: " + (err.response?.data?.error || err.message));
+      }
+    }
+  };
 
   return (
     <div className="report-root">
@@ -163,8 +181,8 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
                 <span className="meta-value">{categoryEmoji[item.category]} {item.category}</span>
               </div>
               <div className="meta-box">
-                <span className="meta-label">📋 Type</span>
-                <span className="meta-value" style={{ textTransform: 'capitalize' }}>{item.type} Item</span>
+                <span className="meta-label">📋 Status</span>
+                <span className="meta-value" style={{ textTransform: 'capitalize' }}>{item.status} Item</span>
               </div>
             </div>
 
@@ -176,8 +194,8 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
             {/* === ACTION AREA — depends on item type and claim state === */}
             <div className="item-action-area" style={{ position: 'relative', minHeight: '150px' }}>
 
-              {/* FOUND items → show "Claim This Item" flow */}
-              {!isLost && (
+              {/* Items with status FOUND or SECURED → show "Claim This Item" flow */}
+              {isStatusFound && (
                 <AnimatePresence mode="wait">
                   {claimStatus === 'none' && (
                     <motion.div 
@@ -267,11 +285,26 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
                 </AnimatePresence>
               )}
 
-              {/* LOST items → show "I Found This Item!" button */}
-              {isLost && (
-                <button className="found-item-btn" onClick={() => navigate('/found')}>
-                  🔍 I Found This Item!
-                </button>
+              {/* Items still LOST → show "Mark as Found" or "I Found This Item!" */}
+              {isStatusLost && (
+                <>
+                  {canResolve ? (
+                    <button className="claim-btn anim-singlePulse" onClick={handleMarkFound} style={{ background: 'linear-gradient(135deg, #28a745, #218838)' }}>
+                      ✅ Mark as Found
+                    </button>
+                  ) : (
+                    <button className="claim-btn anim-singlePulse" onClick={() => navigate('/found', { 
+                      state: { 
+                        linkedLostItemId: item.id,
+                        itemName: item.itemName,
+                        category: item.category,
+                        description: item.description
+                      } 
+                    })} style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                      🔍 I Found This Item!
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>

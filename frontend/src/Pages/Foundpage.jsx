@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import WizardProgress from '../Components/WizardProgress';
 import api from '../services/api';
@@ -10,14 +11,22 @@ const stepVariants = {
 };
 
 const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const linkedLostItem = location.state || {}; // { linkedLostItemId, itemName, category, description }
+
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [formData, setFormData] = useState({
-    itemName: '', category: '', location: '',
-    date: '', description: '', image: null,
+    itemName: linkedLostItem.itemName || '',
+    category: linkedLostItem.category || '',
+    location: '',
+    date: '', 
+    description: linkedLostItem.description || '',
+    image: null,
     contactName: '', contactPhone: '', contactEmail: ''
   });
 
@@ -91,7 +100,8 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
         imageUrl: imageUrl,
         contactName: formData.contactName,
         contactPhone: formData.contactPhone,
-        contactEmail: formData.contactEmail
+        contactEmail: formData.contactEmail,
+        linkedLostItemId: linkedLostItem.linkedLostItemId || null
       };
       
       const response = await api.post('/items/found', reqPayload);
@@ -138,6 +148,21 @@ const Foundpage = ({ isLoggedIn, setIsLoggedIn }) => {
             <>
               <h3>Report Found Item</h3>
               <p className="form-subtitle">Help reunite a student with their belonging.</p>
+
+              {linkedLostItem.linkedLostItemId && (
+                <div style={{
+                  background: 'rgba(102,126,234,0.15)',
+                  border: '1px solid rgba(102,126,234,0.3)',
+                  borderRadius: '10px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  color: '#667eea',
+                  fontSize: '13px',
+                  fontWeight: 600
+                }}>
+                  🔗 Linked to lost item: "{linkedLostItem.itemName}" — The owner will be notified when you submit.
+                </div>
+              )}
 
               <WizardProgress currentStep={currentStep} stepLabels={["Item Details", "Where You Found It", "Your Contact"]} />
 

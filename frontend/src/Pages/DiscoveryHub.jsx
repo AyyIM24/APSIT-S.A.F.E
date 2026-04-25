@@ -45,8 +45,13 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
     // If backend returns category as string "electronics"
     const matchCategory = category === 'all' || item.category === category;
     const matchLocation = location === 'all' || item.location === location;
-    // Map backend domain type (LOST, FOUND) to tabs (lost, found)
-    const matchTab = item.type?.toLowerCase() === activeTab.toLowerCase();
+    // Map items to tabs based on STATUS (not type, since type never changes):
+    // - "lost" tab: items with status LOST
+    // - "found" tab: items with status FOUND or SECURED
+    const itemStatus = item.status?.toUpperCase();
+    const matchTab = activeTab === 'lost'
+      ? itemStatus === 'LOST'
+      : (itemStatus === 'FOUND' || itemStatus === 'SECURED');
     return matchSearch && matchCategory && matchLocation && matchTab;
   });
 
@@ -199,7 +204,7 @@ const DiscoveryHub = ({ isLoggedIn, setIsLoggedIn }) => {
                       </div>
                     )}
                     {renderStatusBadge(item.status)}
-                    <span className={`type-badge ${item.type?.toLowerCase()}`}>{item.type?.toLowerCase() === 'lost' ? '📦 Lost' : '🔍 Found'}</span>
+                    <span className={`type-badge ${activeTab}`}>{activeTab === 'lost' ? '📦 Lost' : '🔍 Found'}</span>
                   </div>
                   <div className="card-info">
                     <h4>{item.itemName}</h4>

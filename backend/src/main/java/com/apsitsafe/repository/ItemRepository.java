@@ -36,7 +36,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                                @Param("location") String location,
                                @Param("search") String search);
 
-    @Query("SELECT i FROM Item i WHERE " +
+    @Query("SELECT i FROM Item i WHERE UPPER(i.status) != 'RESOLVED' AND " +
            "(:type IS NULL OR i.type = :type) AND " +
            "(:category IS NULL OR i.category = :category) AND " +
            "(:location IS NULL OR i.location = :location) AND " +

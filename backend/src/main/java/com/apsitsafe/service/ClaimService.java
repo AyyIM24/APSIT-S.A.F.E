@@ -160,4 +160,30 @@ public class ClaimService {
     public List<ClaimRequest> getClaimsByUser(Long userId) {
         return claimRequestRepository.findByClaimedById(userId);
     }
+
+    /**
+     * Get all handed-over items (resolved cases)
+     * Returns claims that have been picked up with complete handover details
+     */
+    public List<ClaimRequest> getHandedOverItems() {
+        List<ClaimRequest> allClaims = claimRequestRepository.findAll();
+        return allClaims.stream()
+                .filter(claim -> "approved".equals(claim.getStatus()) && 
+                                Boolean.TRUE.equals(claim.getPickedUp()))
+                .toList();
+    }
+
+    /**
+     * Get handed-over items within a date range (for admin reporting)
+     */
+    public List<ClaimRequest> getHandedOverItemsInDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        List<ClaimRequest> allClaims = claimRequestRepository.findAll();
+        return allClaims.stream()
+                .filter(claim -> "approved".equals(claim.getStatus()) && 
+                                Boolean.TRUE.equals(claim.getPickedUp()) &&
+                                claim.getPickedUpAt() != null &&
+                                !claim.getPickedUpAt().isBefore(startDate) &&
+                                !claim.getPickedUpAt().isAfter(endDate))
+                .toList();
+    }
 }

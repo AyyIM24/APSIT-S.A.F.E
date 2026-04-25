@@ -70,21 +70,21 @@ const RegisterPage = ({ isLoggedIn, setIsLoggedIn }) => {
 
             setLoading(false);
 
-            // Check if OTP verification is required
-            if (response.data.requiresOtp === true) {
-                navigate('/verify-otp', {
-                    state: {
-                        userId: response.data.userId,
-                        email: email
-                    }
-                });
-                return;
+            // Registration returns JWT directly — log the user in
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('user', JSON.stringify({
+                    id: response.data.userId,
+                    email: response.data.email,
+                    name: response.data.name,
+                    role: response.data.role
+                }));
+                setIsLoggedIn(true);
             }
 
-            // Fallback: original success flow
             setRegisterSuccess(true);
             setTimeout(() => {
-                navigate('/login');
+                navigate('/');
             }, 1200);
         } catch (err) {
             setLoading(false);

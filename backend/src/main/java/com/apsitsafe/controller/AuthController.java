@@ -62,30 +62,7 @@ public class AuthController {
             LoginResponse response = authService.loginUser(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            String msg = e.getMessage();
-
-            // Special handling for unverified email
-            if ("EMAIL_NOT_VERIFIED".equals(msg)) {
-                User user = userRepository.findByEmail(request.getEmail()).orElse(null);
-                Long uid = user != null ? user.getId() : null;
-
-                // Auto-resend OTP for convenience
-                if (user != null) {
-                    try {
-                        otpService.generateAndSendOtp(user);
-                    } catch (Exception ex) {
-                        System.err.println("Failed to resend OTP on login: " + ex.getMessage());
-                    }
-                }
-
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
-                        "error", "Email not verified. Please check your email for the verification code.",
-                        "requiresOtp", true,
-                        "userId", uid != null ? uid : 0
-                ));
-            }
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", msg));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
         }
     }
 

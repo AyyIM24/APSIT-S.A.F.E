@@ -116,10 +116,12 @@ public class ItemController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateItemStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> updateItemStatus(@PathVariable Long id, @RequestBody Map<String, String> body, HttpServletRequest httpRequest) {
         try {
             String status = body.get("status");
-            Item item = itemService.updateItemStatus(id, status);
+            Long userId = extractUserId(httpRequest);
+            boolean isAdmin = "ADMIN".equalsIgnoreCase(extractRole(httpRequest));
+            Item item = itemService.updateItemStatus(id, status, userId, isAdmin);
             return ResponseEntity.ok(item);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

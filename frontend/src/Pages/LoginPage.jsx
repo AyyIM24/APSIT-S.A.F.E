@@ -34,18 +34,6 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
             setLoading(false);
 
             if (err.response) {
-                // Handle unverified email — redirect to OTP page
-                if (err.response.status === 403 && err.response.data?.requiresOtp) {
-                    navigate('/verify-otp', {
-                        state: {
-                            userId: err.response.data.userId,
-                            email: email
-                        }
-                    });
-                    return;
-                }
-
-                // Regular auth errors
                 setError(err.response.data?.error || 'Invalid email or password.');
             } else {
                 setError('Login failed. Please try again.');

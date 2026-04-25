@@ -13,6 +13,7 @@ const navItems = [
   { path: '/admin/admins',     icon: '👑', label: 'Admins' },
   { path: '/admin/categories', icon: '🏷️', label: 'Categories' },
   { path: '/admin/claims',     icon: '📋', label: 'Claim Requests' },
+  { path: '/admin/handed-over', icon: '✅', label: 'Handed Over Items' },
   { path: '/admin/users',      icon: '👥', label: 'Users' },
   { path: '/admin/reports',    icon: '📊', label: 'Reports' },
 ];

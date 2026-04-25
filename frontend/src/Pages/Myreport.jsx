@@ -104,14 +104,23 @@ const MyReports = ({ isLoggedIn, setIsLoggedIn }) => {
                     <tr key={report.id} style={{ animation: `cardReveal 0.4s ${index * 0.08}s ease both` }}>
                       <td><strong>{report.itemName}</strong></td>
                       <td>
-                        <span style={{ 
-                          padding: '4px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
-                          background: report.type?.toLowerCase() === 'lost' ? 'rgba(220,53,69,0.15)' : 'rgba(102,126,234,0.15)',
-                          color: report.type?.toLowerCase() === 'lost' ? '#ff6b6b' : '#667eea',
-                          border: `1px solid ${report.type?.toLowerCase() === 'lost' ? 'rgba(220,53,69,0.3)' : 'rgba(102,126,234,0.3)'}`
-                        }}>
-                          {report.type}
-                        </span>
+                        {(() => {
+                          // Show effective type based on current status:
+                          // If status is FOUND, SECURED, or RESOLVED, the item has been found
+                          const effectiveType = ['FOUND', 'SECURED', 'RESOLVED'].includes(report.status?.toUpperCase())
+                            ? 'FOUND' : (report.type || 'LOST');
+                          const isLostType = effectiveType === 'LOST';
+                          return (
+                            <span style={{ 
+                              padding: '4px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
+                              background: isLostType ? 'rgba(220,53,69,0.15)' : 'rgba(102,126,234,0.15)',
+                              color: isLostType ? '#ff6b6b' : '#667eea',
+                              border: `1px solid ${isLostType ? 'rgba(220,53,69,0.3)' : 'rgba(102,126,234,0.3)'}`
+                            }}>
+                              {effectiveType}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td>{report.date}</td>
                       <td>{report.location}</td>

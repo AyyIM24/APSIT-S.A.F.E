@@ -23,4 +23,5 @@ public class ItemRequest {
     private String contactName;
     private String contactPhone;
     private String contactEmail;
+    private Long linkedLostItemId; // Optional: links this found report to an original lost item
 }

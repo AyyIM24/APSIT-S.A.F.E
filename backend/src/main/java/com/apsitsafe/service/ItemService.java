@@ -60,7 +60,7 @@ public class ItemService {
         return items.stream()
                 .filter(item -> {
                     // Always exclude RESOLVED items from public listings
-                    if ("RESOLVED".equals(item.getStatus())) {
+                    if ("RESOLVED".equalsIgnoreCase(item.getStatus())) {
                         return false;
                     }
                     // FOUND items: only visible to the reporter or admins
@@ -136,6 +136,24 @@ public class ItemService {
 
         item = itemRepository.save(item);
 
+        // If linked to a lost item, mark it as RESOLVED and notify the owner
+        if (request.getLinkedLostItemId() != null) {
+            try {
+                Item lostItem = itemRepository.findById(request.getLinkedLostItemId()).orElse(null);
+                if (lostItem != null && "LOST".equalsIgnoreCase(lostItem.getStatus())) {
+                    lostItem.setStatus("RESOLVED");
+                    itemRepository.save(lostItem);
+
+                    // Notify the owner of the lost item about the found item
+                    if (lostItem.getReportedBy() != null) {
+                        notificationService.notifyOwnerItemFound(lostItem, item);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to process linked lost item: " + e.getMessage());
+            }
+        }
+
         // Fire notification to all admins
         try {
             notificationService.notifyAdminsItemFound(item);
@@ -168,8 +186,16 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public Item updateItemStatus(Long id, String status) {
+    public Item updateItemStatus(Long id, String status, Long requestingUserId, boolean isAdmin) {
         Item item = getItemById(id);
+        
+        // Ownership / Authorization check for status update
+        if (!isAdmin) {
+            if (requestingUserId == null || item.getReportedBy() == null || !item.getReportedBy().getId().equals(requestingUserId)) {
+                throw new RuntimeException("Not authorized to update status of this item");
+            }
+        }
+        
         item.setStatus(status);
         return itemRepository.save(item);
     }

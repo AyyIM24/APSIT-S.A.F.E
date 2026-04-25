@@ -84,6 +84,25 @@ public class ClaimController {
         return ResponseEntity.ok(claimService.getClaimsByUser(userId));
     }
 
+    /**
+     * Get all handed-over items (resolved cases with complete details)
+     * Admin can view complete record of which items were handed over and when
+     *
+     * GET /api/claims/handed-over
+     */
+    @GetMapping("/handed-over")
+    public ResponseEntity<?> getHandedOverItems() {
+        try {
+            List<ClaimRequest> handedOverItems = claimService.getHandedOverItems();
+            Map<String, Object> response = new HashMap<>();
+            response.put("total", handedOverItems.size());
+            response.put("items", handedOverItems);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     private Long extractUserId(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

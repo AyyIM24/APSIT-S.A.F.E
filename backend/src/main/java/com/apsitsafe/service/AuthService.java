@@ -46,17 +46,10 @@ public class AuthService {
                 .branch(request.getBranch())
                 .year(request.getYear())
                 .rollNo(request.getRollNo())
-                .isEmailVerified(false)
+                .isEmailVerified(true) // Skip OTP — mark verified immediately
                 .build();
 
         user = userRepository.save(user);
-
-        // Send OTP for email verification
-        try {
-            otpService.generateAndSendOtp(user);
-        } catch (Exception e) {
-            System.err.println("Failed to send OTP: " + e.getMessage());
-        }
 
         // Notify admins about new registration
         try {
@@ -65,14 +58,16 @@ public class AuthService {
             System.err.println("Failed to send registration notification: " + e.getMessage());
         }
 
-        // Return response with requiresOtp=true — NO JWT yet
+        // Generate JWT token directly — no OTP required
+        String token = jwtUtil.generateToken(user.getEmail(), "USER", user.getId());
+
         return LoginResponse.builder()
-                .userId(user.getId())
+                .token(token)
                 .email(user.getEmail())
                 .name(user.getName())
+                .userId(user.getId())
                 .role("USER")
-                .message("Registration successful. Check your email for a verification code.")
-                .requiresOtp(true)
+                .message("Registration successful")
                 .build();
     }
 
@@ -86,11 +81,6 @@ public class AuthService {
 
         if ("suspended".equals(user.getStatus())) {
             throw new RuntimeException("Account is suspended. Contact admin.");
-        }
-
-        // Check email verification
-        if (user.getIsEmailVerified() == null || !user.getIsEmailVerified()) {
-            throw new RuntimeException("EMAIL_NOT_VERIFIED");
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), "USER", user.getId());
