@@ -292,21 +292,6 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                                 <div className="profile-trigger" onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); setShowNotifications(false); setMobileMenuOpen(false); }}>
                                     <div className="avatar">{user?.name ? user.name.charAt(0).toUpperCase() : 'A'}</div> 
                                 </div>
-
-                                {showDropdown && (
-                                    <div className="dropdown-menu">
-                                        <div className="dropdown-header">
-                                            <strong>{user?.name || 'User'}</strong>
-                                            <p>{user?.email || 'student@apsit.edu.in'}</p>
-                                        </div>
-                                        <hr />
-                                        <ul className="dropdown-list">
-                                            <li><Link to="/profile" onClick={() => { setShowDropdown(false); setMobileMenuOpen(false); }}>My Profile</Link></li>
-                                            <li><Link to="/myreports" onClick={() => { setShowDropdown(false); setMobileMenuOpen(false); }}>My Reports</Link></li>
-                                            <li onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="logout-item">Logout</li>
-                                        </ul>
-                                    </div>
-                                )}
                             </div>
                         </>
                     )}
@@ -344,6 +329,35 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                     )}
                 </ul>
             </div>
+
+            {/* === Profile Bottom Sheet (works on all screen sizes) === */}
+            {showDropdown && (
+                <div className="profile-sheet-overlay" onClick={() => setShowDropdown(false)}>
+                    <div className="profile-sheet" onClick={(e) => e.stopPropagation()}>
+                        <div className="profile-sheet-handle" />
+                        <div className="profile-sheet-header">
+                            <div className="profile-sheet-avatar">
+                                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                            </div>
+                            <div>
+                                <strong>{user?.name || 'User'}</strong>
+                                <p>{user?.email || 'student@apsit.edu.in'}</p>
+                            </div>
+                        </div>
+                        <div className="profile-sheet-links">
+                            <Link to="/profile" onClick={() => setShowDropdown(false)} className="profile-sheet-link">
+                                <span>👤</span> My Profile
+                            </Link>
+                            <Link to="/myreports" onClick={() => setShowDropdown(false)} className="profile-sheet-link">
+                                <span>📋</span> My Reports
+                            </Link>
+                            <div className="profile-sheet-link logout" onClick={() => { handleLogout(); setShowDropdown(false); }}>
+                                <span>🚪</span> Logout
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </header>
     );
 }

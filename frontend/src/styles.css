@@ -290,6 +290,128 @@ header, .header-main {
   margin: 0;
 }
 
+/* === PROFILE BOTTOM SHEET === */
+.profile-sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sheetFadeIn 0.2s ease;
+}
+
+@keyframes sheetFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.profile-sheet {
+  background: linear-gradient(180deg, #1e0a55 0%, #120040 100%);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 12px 24px 32px;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
+  border-top: 1px solid rgba(255,255,255,0.12);
+  animation: sheetSlideUp 0.3s cubic-bezier(0.25,0.46,0.45,0.94) both;
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.profile-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.profile-sheet-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 8px;
+}
+
+.profile-sheet-avatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.profile-sheet-header strong {
+  color: white;
+  font-size: 17px;
+  display: block;
+}
+
+.profile-sheet-header p {
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.profile-sheet-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-sheet-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 12px;
+  border-radius: 14px;
+  color: rgba(255,255,255,0.85);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.profile-sheet-link:hover {
+  background: rgba(255,255,255,0.08);
+  color: white;
+}
+
+.profile-sheet-link span {
+  font-size: 1.2rem;
+  width: 28px;
+  text-align: center;
+}
+
+.profile-sheet-link.logout {
+  color: #ff6b6b;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 16px;
+  border-radius: 0 0 14px 14px;
+}
+
+.profile-sheet-link.logout:hover {
+  background: rgba(255,100,100,0.1);
+}
+
 /* ============================================================
    FOOTER
    ============================================================ */
