@@ -81,7 +81,10 @@ export const authService = {
 export const getImageUrl = (url) => {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  return `http://localhost:8080${url}`;
+  // Derive backend origin from the API base URL
+  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+  const backendOrigin = apiBase.replace(/\/api\/?$/, '');
+  return `${backendOrigin}${url}`;
 };
 
 export default api;
