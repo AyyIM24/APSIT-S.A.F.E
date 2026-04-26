@@ -6,28 +6,28 @@ const team = [
         name: 'Sakshi Nagaraj Palankar',
         role: 'Lead Developer',
         phone: '+91 8591752540',
-        icon: '👩‍💻',
+        image: '/images/Sakshi.jpeg',
         gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     },
     {
         name: 'Ayyan Iqbal Muqadam',
         role: 'Project Manager',
         phone: '+91 7738993187',
-        icon: '👨‍💼',
+        image: '/images/Ayyan.jpeg',
         gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     },
     {
         name: 'Bishnupriya Prasanna Mohapatra',
         role: 'Frontend Designer',
         phone: '+91 8080240894',
-        icon: '👩‍🎨',
+        image: '/images/Bishnupriya.jpeg',
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     },
     {
         name: 'Drishti Pramod More',
         role: 'Project Designer & Database Manager',
         phone: '+91 9320153664',
-        icon: '👩‍🔧',
+        image: '/images/Dristi.jpeg',
         gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     },
 ];
@@ -78,7 +78,7 @@ const AboutUsPage = () => {
                     {team.map((member, i) => (
                         <div className="about-team-card anim-fadeScale" key={i} style={{ animationDelay: `${0.25 + i * 0.1}s` }}>
                             <div className="about-team-avatar" style={{ background: member.gradient }}>
-                                <span>{member.icon}</span>
+                                <img src={member.image} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                             </div>
                             <h3>{member.name}</h3>
                             <div className="about-team-role">{member.role}</div>
