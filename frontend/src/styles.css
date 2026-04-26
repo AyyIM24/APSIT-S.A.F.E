@@ -2006,3 +2006,389 @@ header, .header-main {
   0%, 100% { box-shadow: 0 0 20px rgba(102,126,234,0.4), 0 0 40px rgba(102,126,234,0.15); }
   50% { box-shadow: 0 0 30px rgba(102,126,234,0.6), 0 0 60px rgba(102,126,234,0.25); }
 }
+
+/* ============================================================
+   HAMBURGER MENU BUTTON (hidden on desktop)
+   ============================================================ */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  margin-left: auto;
+  z-index: 1001;
+}
+
+.hamburger-line {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-line.open:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 6px);
+}
+
+.hamburger-line.open:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-line.open:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -6px);
+}
+
+/* ============================================================
+   RESPONSIVE — Tablet (max-width: 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* === HEADER === */
+  header, .header-main {
+    margin: 10px;
+    padding: 0 16px;
+    border-radius: 16px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .header-main img {
+    height: 40px;
+    width: 40px;
+    margin-right: 8px;
+  }
+
+  .title {
+    flex-wrap: wrap;
+    padding: 10px 0;
+  }
+
+  .title h1 {
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .title ul,
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    order: 10;
+  }
+
+  .nav-links.mobile-open {
+    display: flex;
+    padding-bottom: 12px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin-top: 8px;
+    animation: mobileMenuSlide 0.3s ease both;
+  }
+
+  @keyframes mobileMenuSlide {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .title ul li,
+  .nav-links li {
+    width: 100%;
+  }
+
+  .title ul a,
+  .nav-links a {
+    display: block;
+    padding: 12px 16px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .title ul a:hover,
+  .nav-links a:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .theme-toggle-item {
+    order: -1;
+    width: auto !important;
+    position: absolute;
+    right: 56px;
+    top: 14px;
+  }
+
+  /* Profile in mobile */
+  .profile-container {
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  .profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+  }
+
+  .dropdown-menu {
+    position: relative;
+    top: 8px;
+    right: auto;
+    width: 100%;
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  /* Notification panel mobile */
+  .notification-panel {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 60vh;
+    border-radius: 20px 20px 0 0;
+    margin-top: 0;
+  }
+
+  /* === SEARCH BANNER === */
+  .part-1 {
+    width: calc(100% - 20px);
+    margin: 0 10px;
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .hub-title {
+    font-size: 1.6rem;
+  }
+
+  .search-bar-themed {
+    max-width: 100%;
+  }
+
+  /* === DISCOVERY HUB LAYOUT === */
+  .container-1 {
+    flex-direction: column;
+    padding: 16px 10px;
+    gap: 16px;
+  }
+
+  .part-2 {
+    width: 100%;
+    border-radius: 18px;
+    padding: 20px;
+    order: -1;
+  }
+
+  .part-3 {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Toggle bar */
+  .toggle-bar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toggle-btn {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+
+  /* Cards grid */
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+    gap: 16px !important;
+  }
+
+  /* === FOOTER === */
+  .section-p1 {
+    margin: 10px;
+    padding: 24px 20px;
+    border-radius: 16px;
+    gap: 24px;
+  }
+
+  .section-p1 .col {
+    min-width: 140px;
+  }
+
+  /* === AUTH FORMS === */
+  .auth-card {
+    padding: 32px 24px;
+    border-radius: 24px;
+    margin: 0 10px;
+  }
+
+  .auth-card-header h1 {
+    font-size: 1.5rem;
+  }
+
+  /* === REPORT FORMS === */
+  .report-container {
+    padding: 20px 10px !important;
+  }
+
+  .report-form-box {
+    padding: 24px 20px !important;
+    border-radius: 20px !important;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .campus-zone-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* === ITEM DETAIL === */
+  .item-detail-card {
+    flex-direction: column !important;
+  }
+
+  .item-detail-image {
+    width: 100% !important;
+    max-height: 300px !important;
+  }
+
+  .item-detail-info {
+    padding: 24px 20px !important;
+  }
+
+  .item-detail-meta-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* === MY REPORTS TABLE === */
+  .reports-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* === MODAL === */
+  .modal-content-aesthetic {
+    width: 95%;
+    padding: 28px 20px;
+    border-radius: 22px;
+  }
+
+  .modal-btns {
+    flex-direction: column;
+  }
+
+  /* === QR WRAPPER === */
+  .qr-wrapper {
+    max-width: 180px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — Small phones (max-width: 480px)
+   ============================================================ */
+@media (max-width: 480px) {
+
+  header, .header-main {
+    margin: 6px;
+    padding: 0 12px;
+    border-radius: 14px;
+  }
+
+  .header-main img {
+    height: 34px;
+    width: 34px;
+  }
+
+  .title h1 {
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+  }
+
+  .hub-title {
+    font-size: 1.3rem;
+  }
+
+  .part-1 {
+    padding: 20px 16px;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .auth-card {
+    padding: 28px 18px;
+    border-radius: 20px;
+  }
+
+  .auth-card-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .section-p1 {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-p1 .col {
+    min-width: 100%;
+  }
+
+  .item-detail-meta-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  .filter-category-chips {
+    gap: 6px;
+  }
+
+  .filter-chip {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .campus-zone-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-row button {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   GLOBAL OVERFLOW FIX
+   ============================================================ */
+html {
+  overflow-x: hidden;
+}
+
+.app-container {
+  overflow-x: hidden;
+}

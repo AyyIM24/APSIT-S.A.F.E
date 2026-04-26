@@ -8,6 +8,7 @@ import logo from '../Logo.png';
 function Header({ isLoggedIn, setIsLoggedIn }) {
     const [showDropdown, setShowDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const navigate = useNavigate();
@@ -129,28 +130,39 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
             <div className="title">
                 <img src={logo} alt="Logo"/>
                 <h1>APSIT S.A.F.E</h1>
+
+                {/* Hamburger button — visible only on mobile */}
+                <button 
+                    className="hamburger-btn" 
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    aria-label="Toggle menu"
+                >
+                    <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
+                    <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
+                    <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
+                </button>
                 
-                <ul>
+                <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
                     <li className="theme-toggle-item">
                         <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
                             {theme === 'dark' ? '☀️' : '🌙'}
                         </button>
                     </li>
-                    <li><Link to={isLoggedIn ? "/discovery" : "/"}>Home</Link></li>
+                    <li><Link to={isLoggedIn ? "/discovery" : "/"} onClick={() => setMobileMenuOpen(false)}>Home</Link></li>
 
                     {!isLoggedIn ? (
                         <>
-                            <li><Link to="/login">Login</Link></li>
-                            <li><Link to="/register">Register</Link></li>
-                            <li><Link to="/about">About Us</Link></li>
-                            <li><Link to="/howitworks">How It Works</Link></li>
+                            <li><Link to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link></li>
+                            <li><Link to="/register" onClick={() => setMobileMenuOpen(false)}>Register</Link></li>
+                            <li><Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link></li>
+                            <li><Link to="/howitworks" onClick={() => setMobileMenuOpen(false)}>How It Works</Link></li>
                         </>
                     ) : (
                         <>
-                            <li><Link to="/report">Lost Items</Link></li>
-                            <li><Link to="/found">Found Items</Link></li>
-                            <li><Link to="/howitworks">How It Works</Link></li>
-                            <li><Link to="/about">About Us</Link></li>
+                            <li><Link to="/report" onClick={() => setMobileMenuOpen(false)}>Lost Items</Link></li>
+                            <li><Link to="/found" onClick={() => setMobileMenuOpen(false)}>Found Items</Link></li>
+                            <li><Link to="/howitworks" onClick={() => setMobileMenuOpen(false)}>How It Works</Link></li>
+                            <li><Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link></li>
                             
                             {/* Notification Bell */}
                             <li className="notification-container" ref={notifRef}>
@@ -305,9 +317,9 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
             </div>
             <hr />
             <ul className="dropdown-list">
-                <li><Link to="/profile">My Profile</Link></li>
-                <li><Link to="/myreports">My Reports</Link></li>
-                <li onClick={handleLogout} className="logout-item">Logout</li>
+                <li><Link to="/profile" onClick={() => setMobileMenuOpen(false)}>My Profile</Link></li>
+                <li><Link to="/myreports" onClick={() => setMobileMenuOpen(false)}>My Reports</Link></li>
+                <li onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="logout-item">Logout</li>
             </ul>
         </div>
     )}
