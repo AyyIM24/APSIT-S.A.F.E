@@ -8,6 +8,7 @@ const team = [
         phone: '+91 8591752540',
         image: '/Images/Sakshi.jpeg',
         gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        imgStyle: { objectPosition: 'center 15%', transform: 'scale(1.8)' }
     },
     {
         name: 'Ayyan Iqbal Muqadam',
@@ -15,6 +16,7 @@ const team = [
         phone: '+91 7738993187',
         image: '/Images/Ayyan.jpeg',
         gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        imgStyle: { objectPosition: 'center 10%' }
     },
     {
         name: 'Bishnupriya Prasanna Mohapatra',
@@ -22,6 +24,7 @@ const team = [
         phone: '+91 8080240894',
         image: '/Images/Bishnupriya.jpeg',
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        imgStyle: { objectPosition: 'center 15%', transform: 'scale(1.8)' }
     },
     {
         name: 'Drishti Pramod More',
@@ -29,6 +32,7 @@ const team = [
         phone: '+91 9320153664',
         image: '/Images/Dristi.jpeg',
         gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        imgStyle: { objectPosition: 'center' }
     },
 ];
 
@@ -77,8 +81,8 @@ const AboutUsPage = () => {
                 <div className="about-team-grid">
                     {team.map((member, i) => (
                         <div className="about-team-card anim-fadeScale" key={i} style={{ animationDelay: `${0.25 + i * 0.1}s` }}>
-                            <div className="about-team-avatar" style={{ background: member.gradient }}>
-                                <img src={member.image} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                            <div className="about-team-avatar" style={{ background: member.gradient, overflow: 'hidden' }}>
+                                <img src={member.image} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover', ...member.imgStyle }} />
                             </div>
                             <h3>{member.name}</h3>
                             <div className="about-team-role">{member.role}</div>
