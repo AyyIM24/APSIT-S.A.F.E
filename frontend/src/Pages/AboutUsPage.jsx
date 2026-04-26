@@ -42,10 +42,10 @@ const AboutUsPage = () => {
                 </div>
                 <div className="about-college-info">
                     <h1>A.P. Shah Institute of Technology</h1>
-                    <p className="about-college-tagline">Department of Computer Engineering</p>
+                    <p className="about-college-tagline">Department of Information Technology Engineering</p>
                     <p className="about-college-desc">
-                        A.P. Shah Institute of Technology (APSIT) is a premier engineering college located in Thane, Maharashtra. 
-                        Established under the Vidya Prasarak Mandal, APSIT is committed to nurturing innovation and excellence in 
+                        A.P. Shah Institute of Technology (APSIT) is a premier engineering college located in Thane, Maharashtra.
+                        Established under the Vidya Prasarak Mandal, APSIT is committed to nurturing innovation and excellence in
                         technology education. Our students continually push boundaries to create impactful solutions for real-world problems.
                     </p>
                 </div>
@@ -56,9 +56,9 @@ const AboutUsPage = () => {
                 <div className="about-project-badge">🛡️</div>
                 <h2>About APSIT S.A.F.E</h2>
                 <p>
-                    <strong>Student Asset & Found-item Exchange</strong> (S.A.F.E) is a comprehensive digital platform 
-                    designed to streamline the lost-and-found process across the APSIT campus. Built with modern web 
-                    technologies, this platform enables students to report lost items, browse found items, submit verified 
+                    <strong>Student Asset & Found-item Exchange</strong> (S.A.F.E) is a comprehensive digital platform
+                    designed to streamline the lost-and-found process across the APSIT campus. Built with modern web
+                    technologies, this platform enables students to report lost items, browse found items, submit verified
                     claims, and securely collect their belongings — all through an intuitive and visually immersive interface.
                 </p>
                 <div className="about-project-tech">
