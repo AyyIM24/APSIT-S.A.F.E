@@ -8,7 +8,7 @@ const team = [
         phone: '+91 8591752540',
         image: '/Images/Sakshi.jpeg',
         gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        imgStyle: { objectPosition: 'center 0%', transform: 'scale(2.2)', transformOrigin: 'top center' }
+        imgStyle: { objectPosition: 'center 0%', transform: 'scale(1.5)', transformOrigin: 'top center' }
     },
     {
         name: 'Ayyan Iqbal Muqadam',
@@ -24,7 +24,7 @@ const team = [
         phone: '+91 8080240894',
         image: '/Images/Bishnupriya.jpeg',
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        imgStyle: { objectPosition: 'center 0%', transform: 'scale(2)', transformOrigin: 'top center' }
+        imgStyle: { objectPosition: 'center 0%', transform: 'scale(1.5)', transformOrigin: 'top center' }
     },
     {
         name: 'Drishti Pramod More',
