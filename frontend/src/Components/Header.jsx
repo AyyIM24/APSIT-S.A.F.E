@@ -81,7 +81,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
         }
     };
 
-    // Close notifications when clicking outside
+    // Close notifications and profile dropdown when clicking/tapping outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (notifRef.current && !notifRef.current.contains(e.target)) {
@@ -92,7 +92,11 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
     }, []);
 
     const handleLogout = () => {
@@ -285,7 +289,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
 
                             {/* Profile Avatar */}
                             <div className="profile-container" ref={profileRef}>
-                                <div className="profile-trigger" onClick={() => { setShowDropdown(!showDropdown); setShowNotifications(false); setMobileMenuOpen(false); }}>
+                                <div className="profile-trigger" onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); setShowNotifications(false); setMobileMenuOpen(false); }}>
                                     <div className="avatar">{user?.name ? user.name.charAt(0).toUpperCase() : 'A'}</div> 
                                 </div>
 
