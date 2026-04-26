@@ -14,6 +14,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
     const navigate = useNavigate();
     const { theme, toggleTheme } = useContext(ThemeContext);
     const notifRef = useRef(null);
+    const profileRef = useRef(null);
     const user = authService.getUser();
 
     // Fetch unread count on mount and poll every 30s
@@ -86,6 +87,9 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
             if (notifRef.current && !notifRef.current.contains(e.target)) {
                 setShowNotifications(false);
             }
+            if (profileRef.current && !profileRef.current.contains(e.target)) {
+                setShowDropdown(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -131,41 +135,16 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                 <img src={logo} alt="Logo"/>
                 <h1>APSIT S.A.F.E</h1>
 
-                {/* Hamburger button — visible only on mobile */}
-                <button 
-                    className="hamburger-btn" 
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    aria-label="Toggle menu"
-                >
-                    <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
-                    <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
-                    <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
-                </button>
-                
-                <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-                    <li className="theme-toggle-item">
-                        <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
-                            {theme === 'dark' ? '☀️' : '🌙'}
-                        </button>
-                    </li>
-                    <li><Link to={isLoggedIn ? "/discovery" : "/"} onClick={() => setMobileMenuOpen(false)}>Home</Link></li>
+                {/* === Header actions — always visible on all screens === */}
+                <div className="header-actions">
+                    <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
+                        {theme === 'dark' ? '☀️' : '🌙'}
+                    </button>
 
-                    {!isLoggedIn ? (
+                    {isLoggedIn && (
                         <>
-                            <li><Link to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link></li>
-                            <li><Link to="/register" onClick={() => setMobileMenuOpen(false)}>Register</Link></li>
-                            <li><Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link></li>
-                            <li><Link to="/howitworks" onClick={() => setMobileMenuOpen(false)}>How It Works</Link></li>
-                        </>
-                    ) : (
-                        <>
-                            <li><Link to="/report" onClick={() => setMobileMenuOpen(false)}>Lost Items</Link></li>
-                            <li><Link to="/found" onClick={() => setMobileMenuOpen(false)}>Found Items</Link></li>
-                            <li><Link to="/howitworks" onClick={() => setMobileMenuOpen(false)}>How It Works</Link></li>
-                            <li><Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link></li>
-                            
                             {/* Notification Bell */}
-                            <li className="notification-container" ref={notifRef}>
+                            <div className="notification-container" ref={notifRef}>
                                 <button 
                                     className="notification-bell-btn"
                                     onClick={handleBellClick}
@@ -302,28 +281,61 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                                         )}
                                     </div>
                                 )}
-                            </li>
+                            </div>
 
-                            <li className="profile-container">
-    <div className="profile-trigger" onClick={() => { setShowDropdown(!showDropdown); setShowNotifications(false); }}>
-        <div className="avatar">{user?.name ? user.name.charAt(0).toUpperCase() : 'A'}</div> 
-    </div>
+                            {/* Profile Avatar */}
+                            <div className="profile-container" ref={profileRef}>
+                                <div className="profile-trigger" onClick={() => { setShowDropdown(!showDropdown); setShowNotifications(false); setMobileMenuOpen(false); }}>
+                                    <div className="avatar">{user?.name ? user.name.charAt(0).toUpperCase() : 'A'}</div> 
+                                </div>
 
-    {showDropdown && (
-        <div className="dropdown-menu">
-            <div className="dropdown-header">
-                <strong>{user?.name || 'User'}</strong>
-                <p>{user?.email || 'student@apsit.edu.in'}</p>
-            </div>
-            <hr />
-            <ul className="dropdown-list">
-                <li><Link to="/profile" onClick={() => setMobileMenuOpen(false)}>My Profile</Link></li>
-                <li><Link to="/myreports" onClick={() => setMobileMenuOpen(false)}>My Reports</Link></li>
-                <li onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="logout-item">Logout</li>
-            </ul>
-        </div>
-    )}
-</li>
+                                {showDropdown && (
+                                    <div className="dropdown-menu">
+                                        <div className="dropdown-header">
+                                            <strong>{user?.name || 'User'}</strong>
+                                            <p>{user?.email || 'student@apsit.edu.in'}</p>
+                                        </div>
+                                        <hr />
+                                        <ul className="dropdown-list">
+                                            <li><Link to="/profile" onClick={() => { setShowDropdown(false); setMobileMenuOpen(false); }}>My Profile</Link></li>
+                                            <li><Link to="/myreports" onClick={() => { setShowDropdown(false); setMobileMenuOpen(false); }}>My Reports</Link></li>
+                                            <li onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="logout-item">Logout</li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+                    {/* Hamburger button — visible only on mobile */}
+                    <button 
+                        className="hamburger-btn" 
+                        onClick={() => { setMobileMenuOpen(!mobileMenuOpen); setShowDropdown(false); setShowNotifications(false); }}
+                        aria-label="Toggle menu"
+                    >
+                        <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
+                        <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
+                        <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
+                    </button>
+                </div>
+                
+                {/* === Navigation links — inside hamburger on mobile === */}
+                <ul className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+                    <li><Link to={isLoggedIn ? "/discovery" : "/"} onClick={() => setMobileMenuOpen(false)}>Home</Link></li>
+
+                    {!isLoggedIn ? (
+                        <>
+                            <li><Link to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link></li>
+                            <li><Link to="/register" onClick={() => setMobileMenuOpen(false)}>Register</Link></li>
+                            <li><Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link></li>
+                            <li><Link to="/howitworks" onClick={() => setMobileMenuOpen(false)}>How It Works</Link></li>
+                        </>
+                    ) : (
+                        <>
+                            <li><Link to="/report" onClick={() => setMobileMenuOpen(false)}>Lost Items</Link></li>
+                            <li><Link to="/found" onClick={() => setMobileMenuOpen(false)}>Found Items</Link></li>
+                            <li><Link to="/howitworks" onClick={() => setMobileMenuOpen(false)}>How It Works</Link></li>
+                            <li><Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link></li>
                         </>
                     )}
                 </ul>

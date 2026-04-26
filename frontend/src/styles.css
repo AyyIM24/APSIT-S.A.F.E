@@ -40,6 +40,9 @@ header, .header-main {
   box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
   display: flex;
   align-items: center;
+  overflow: visible;
+  position: relative;
+  z-index: 100;
 }
 
 .header-main img {
@@ -54,6 +57,7 @@ header, .header-main {
   align-items: center;
   width: 100%;
   padding: 12px 0;
+  overflow: visible;
 }
 
 .title h1 {
@@ -64,11 +68,19 @@ header, .header-main {
   white-space: nowrap;
 }
 
+/* Header actions row — theme, bell, profile, hamburger */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
 .title ul {
   list-style: none;
   display: flex;
   gap: 24px;
-  margin-left: auto;
+  margin-left: 16px;
   margin-right: 0;
   align-items: center;
   padding: 0;
@@ -155,6 +167,7 @@ header, .header-main {
   display: flex;
   align-items: center;
   cursor: pointer;
+  z-index: 1050;
 }
 
 .avatar {
@@ -180,7 +193,7 @@ header, .header-main {
 
 .dropdown-menu {
   position: absolute;
-  top: 60px;
+  top: 55px;
   right: 0;
   background: rgba(30, 15, 80, 0.95);
   backdrop-filter: blur(20px);
@@ -189,7 +202,7 @@ header, .header-main {
   padding: 20px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.4);
   border: 1px solid rgba(255,255,255,0.1);
-  z-index: 1000;
+  z-index: 1100;
   animation: dropdownReveal 0.25s cubic-bezier(0.25,0.46,0.45,0.94) both;
   transform-origin: top right;
 }
@@ -2073,10 +2086,19 @@ header, .header-main {
     letter-spacing: 1px;
   }
 
+  /* Header actions stay in the top bar */
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
   .hamburger-btn {
     display: flex;
   }
 
+  /* Nav links collapse into hamburger */
   .title ul,
   .nav-links {
     display: none;
@@ -2084,7 +2106,7 @@ header, .header-main {
     width: 100%;
     gap: 0;
     padding: 0;
-    margin: 0;
+    margin: 0 !important;
     order: 10;
   }
 
@@ -2119,37 +2141,41 @@ header, .header-main {
     background: rgba(255,255,255,0.1);
   }
 
-  .theme-toggle-item {
-    order: -1;
-    width: auto !important;
-    position: absolute;
-    right: 56px;
-    top: 14px;
+  /* Theme toggle button on mobile — compact */
+  .theme-toggle-btn {
+    font-size: 1.1rem;
+    padding: 4px;
   }
 
-  /* Profile in mobile */
+  /* Profile avatar on mobile — smaller */
   .profile-container {
-    width: 100%;
-    padding: 8px 0;
-  }
-
-  .profile-trigger {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 16px;
-  }
-
-  .dropdown-menu {
     position: relative;
-    top: 8px;
-    right: auto;
-    width: 100%;
-    border-radius: 14px;
-    padding: 16px;
   }
 
-  /* Notification panel mobile */
+  .avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  /* Profile dropdown on mobile */
+  .dropdown-menu {
+    position: absolute;
+    top: 50px;
+    right: -10px;
+    width: 220px;
+    border-radius: 16px;
+    padding: 16px;
+    z-index: 1100;
+  }
+
+  /* Notification bell */
+  .notification-bell-btn {
+    font-size: 1.1rem;
+    padding: 4px;
+  }
+
+  /* Notification panel mobile — bottom sheet */
   .notification-panel {
     position: fixed;
     top: auto;
@@ -2160,13 +2186,14 @@ header, .header-main {
     max-height: 60vh;
     border-radius: 20px 20px 0 0;
     margin-top: 0;
+    z-index: 1100;
   }
 
   /* === SEARCH BANNER === */
   .part-1 {
     width: calc(100% - 20px);
     margin: 0 10px;
-    padding: 24px 20px;
+    padding: 24px 16px;
     border-radius: 20px;
   }
 
@@ -2176,6 +2203,20 @@ header, .header-main {
 
   .search-bar-themed {
     max-width: 100%;
+    flex-direction: row;
+  }
+
+  .search-bar-themed input {
+    font-size: 14px;
+    padding: 0 12px;
+    min-width: 0;
+  }
+
+  .search-bar-themed button {
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   /* === DISCOVERY HUB LAYOUT === */
@@ -2305,18 +2346,44 @@ header, .header-main {
 
   header, .header-main {
     margin: 6px;
-    padding: 0 12px;
+    padding: 0 10px;
     border-radius: 14px;
   }
 
   .header-main img {
-    height: 34px;
-    width: 34px;
+    height: 30px;
+    width: 30px;
+    margin-right: 6px;
   }
 
   .title h1 {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     letter-spacing: 0.5px;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .theme-toggle-btn {
+    font-size: 1rem;
+    padding: 2px;
+  }
+
+  .notification-bell-btn {
+    font-size: 1rem;
+    padding: 2px;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .dropdown-menu {
+    right: -6px;
+    width: 200px;
   }
 
   .hub-title {
@@ -2324,7 +2391,17 @@ header, .header-main {
   }
 
   .part-1 {
-    padding: 20px 16px;
+    padding: 20px 12px;
+  }
+
+  .search-bar-themed input {
+    font-size: 13px;
+    padding: 0 10px;
+  }
+
+  .search-bar-themed button {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .cards-grid {
