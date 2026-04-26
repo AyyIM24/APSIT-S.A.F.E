@@ -81,14 +81,11 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
         }
     };
 
-    // Close notifications and profile dropdown when clicking/tapping outside
+    // Close notifications when clicking/tapping outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (notifRef.current && !notifRef.current.contains(e.target)) {
                 setShowNotifications(false);
-            }
-            if (profileRef.current && !profileRef.current.contains(e.target)) {
-                setShowDropdown(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -345,13 +342,13 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                             </div>
                         </div>
                         <div className="profile-sheet-links">
-                            <Link to="/profile" onClick={() => setShowDropdown(false)} className="profile-sheet-link">
+                            <div className="profile-sheet-link" onClick={() => { setShowDropdown(false); navigate('/profile'); }}>
                                 <span>👤</span> My Profile
-                            </Link>
-                            <Link to="/myreports" onClick={() => setShowDropdown(false)} className="profile-sheet-link">
+                            </div>
+                            <div className="profile-sheet-link" onClick={() => { setShowDropdown(false); navigate('/myreports'); }}>
                                 <span>📋</span> My Reports
-                            </Link>
-                            <div className="profile-sheet-link logout" onClick={() => { handleLogout(); setShowDropdown(false); }}>
+                            </div>
+                            <div className="profile-sheet-link logout" onClick={() => { setShowDropdown(false); handleLogout(); }}>
                                 <span>🚪</span> Logout
                             </div>
                         </div>
