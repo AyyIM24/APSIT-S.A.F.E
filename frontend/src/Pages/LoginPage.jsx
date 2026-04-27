@@ -19,7 +19,7 @@ const LoginPage = ({ onLogin, setIsLoggedIn, isLoggedIn }) => {
 
         try {
             const response = await api.post('/auth/login', { email, password });
-            authService.setAuth(response.data.token, { email, name: response.data.name, role: 'ROLE_USER' });
+            authService.setAuth(response.data.token, { email, name: response.data.name, userId: response.data.userId, role: 'ROLE_USER' });
             
             // Still call parent to update App state if needed
             if (onLogin) await onLogin({ email, password });

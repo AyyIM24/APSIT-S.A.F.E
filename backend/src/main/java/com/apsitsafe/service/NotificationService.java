@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class NotificationService {
     /**
      * When a FOUND item is reported → notify all admins (broadcast)
      */
+    @Async
     public void notifyAdminsItemFound(Item item) {
         Notification notification = Notification.builder()
                 .userId(null) // broadcast to all admins
@@ -61,6 +63,7 @@ public class NotificationService {
     /**
      * When someone reports finding a specific lost item → notify the owner directly
      */
+    @Async
     public void notifyOwnerItemFound(Item lostItem, Item foundItem) {
         if (lostItem.getReportedBy() == null) return;
 
@@ -90,6 +93,7 @@ public class NotificationService {
      * Checks if a newly reported FOUND item matches any LOST items in the same category,
      * and notifies the users who lost them.
      */
+    @Async
     public void checkAndNotifyMatches(Item foundItem) {
         if (!"FOUND".equals(foundItem.getType())) return;
 

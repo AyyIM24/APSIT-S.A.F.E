@@ -130,8 +130,14 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
   const isStatusFound = ['FOUND', 'SECURED'].includes(item.status?.toUpperCase());
   const currentUser = authService.getUser();
   const isAdmin = authService.isAdmin();
-  const isReporter = currentUser && item.reportedBy?.id === currentUser.id;
+  const currentUserId = currentUser?.userId ? Number(currentUser.userId) : null;
+  const isReporter = currentUserId && item.reportedBy?.id === currentUserId;
   const canResolve = isReporter || isAdmin;
+
+  // Check if the current user is the one who found/reported this found item
+  const isFinderOfFoundItem = currentUserId
+    && item.type?.toUpperCase() === 'FOUND' 
+    && item.reportedBy?.id === currentUserId;
 
   const handleMarkFound = async () => {
     if (window.confirm("Are you sure you want to mark this item as Found? It will move to the Found section and be removed from Lost listings.")) {
@@ -196,93 +202,116 @@ const ItemDetail = ({ isLoggedIn, setIsLoggedIn }) => {
 
               {/* Items with status FOUND or SECURED → show "Claim This Item" flow */}
               {isStatusFound && (
-                <AnimatePresence mode="wait">
-                  {claimStatus === 'none' && (
+                <>
+                  {/* If current user is the finder, show info message instead of claim button */}
+                  {isFinderOfFoundItem ? (
                     <motion.div 
-                        key="none"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15))',
+                        border: '1px solid rgba(102,126,234,0.3)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        textAlign: 'center'
+                      }}
                     >
-                      <button className="claim-btn anim-singlePulse" onClick={() => setShowClaimModal(true)}>
-                        🎁 Claim This Item
-                      </button>
+                      <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🙏</div>
+                      <h4 style={{ color: '#667eea', marginBottom: '8px', fontSize: '1.1rem' }}>Thank You for Finding This Item!</h4>
+                      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.6' }}>
+                        The rightful owner has been notified. They will submit a claim and the admin will verify their identity before handing over the item.
+                      </p>
                     </motion.div>
-                  )}
+                  ) : (
+                    <AnimatePresence mode="wait">
+                      {claimStatus === 'none' && (
+                        <motion.div 
+                            key="none"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                        >
+                          <button className="claim-btn anim-singlePulse" onClick={() => setShowClaimModal(true)}>
+                            🎁 Claim This Item
+                          </button>
+                        </motion.div>
+                      )}
 
-                  {claimStatus === 'pending' && (
-                    <motion.div 
-                        key="pending"
-                        className="claim-pending-state"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                    >
-                      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="pending-spinner">⏳</motion.div>
-                      <h4>Claim Under Review</h4>
-                      <p>The Admin is verifying your proof. You'll be notified once approved.</p>
-                    </motion.div>
-                  )}
+                      {claimStatus === 'pending' && (
+                        <motion.div 
+                            key="pending"
+                            className="claim-pending-state"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                        >
+                          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="pending-spinner">⏳</motion.div>
+                          <h4>Claim Under Review</h4>
+                          <p>The Admin is verifying your proof. You'll be notified once approved.</p>
+                        </motion.div>
+                      )}
 
-                  {claimStatus === 'approved' && (
-                    <motion.div 
-                        key="approved"
-                        className="claim-approved-state"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                    >
-                      <motion.svg
-                        width="80" height="80" viewBox="0 0 100 100"
-                        initial="hidden" animate="visible"
-                        style={{ margin: '0 0 10px 0', display: 'block' }}
-                      >
-                        <motion.circle cx="50" cy="50" r="42" stroke="#28a745" strokeWidth="6" fill="rgba(40, 167, 69, 0.1)" variants={draw} custom={0} />
-                        <motion.path d="M 33 52 L 45 64 L 68 38" stroke="#28a745" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none" variants={draw} custom={0.5} />
-                      </motion.svg>
-                      
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
-                        <h4>Claim Approved!</h4>
-                        <p>Show this QR code at the Security Desk to collect your item.</p>
-                        <div className="qr-wrapper">
-                          <QRCodeSVG
-                            value={`https://apsit-safe.edu.in/pickup/${myClaim?.pickupToken || item.id}`}
-                            size={160}
-                            fgColor="#120058"
-                            bgColor="#ffffff"
-                          />
-                        </div>
-                        <p style={{ fontSize: '12px', color: '#155724', marginTop: '8px' }}>
-                          {item.itemName} · {item.location}
-                        </p>
-                        <div className="qr-actions">
-                          <button className="btn-gradient-card" onClick={() => window.print()}>🖨️ Print</button>
-                          <button className="btn-gradient-card" onClick={handleDownloadQR}>⬇️ Image</button>
-                        </div>
-                      </motion.div>
-                    </motion.div>
-                  )}
+                      {claimStatus === 'approved' && (
+                        <motion.div 
+                            key="approved"
+                            className="claim-approved-state"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                        >
+                          <motion.svg
+                            width="80" height="80" viewBox="0 0 100 100"
+                            initial="hidden" animate="visible"
+                            style={{ margin: '0 0 10px 0', display: 'block' }}
+                          >
+                            <motion.circle cx="50" cy="50" r="42" stroke="#28a745" strokeWidth="6" fill="rgba(40, 167, 69, 0.1)" variants={draw} custom={0} />
+                            <motion.path d="M 33 52 L 45 64 L 68 38" stroke="#28a745" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none" variants={draw} custom={0.5} />
+                          </motion.svg>
+                          
+                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+                            <h4>Claim Approved!</h4>
+                            <p>Show this QR code at the Security Desk to collect your item.</p>
+                            <div className="qr-wrapper">
+                              <QRCodeSVG
+                                value={`https://apsit-safe.edu.in/pickup/${myClaim?.pickupToken || item.id}`}
+                                size={160}
+                                fgColor="#120058"
+                                bgColor="#ffffff"
+                              />
+                            </div>
+                            <p style={{ fontSize: '12px', color: '#155724', marginTop: '8px' }}>
+                              {item.itemName} · {item.location}
+                            </p>
+                            <div className="qr-actions">
+                              <button className="btn-gradient-card" onClick={() => window.print()}>🖨️ Print</button>
+                              <button className="btn-gradient-card" onClick={handleDownloadQR}>⬇️ Image</button>
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      )}
 
-                  {claimStatus === 'rejected' && (
-                    <motion.div 
-                        key="rejected"
-                        className="claim-rejected-state"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                    >
-                      <h4>❌ Claim Not Approved</h4>
-                      <p>Your proof didn't match. You may try again with better details.</p>
-                      <button className="claim-btn" onClick={() => {
-                        setClaimStatus('none');
-                        setProof('');
-                        setShowClaimModal(true);
-                      }}>
-                        🔄 Try Again
-                      </button>
-                    </motion.div>
+                      {claimStatus === 'rejected' && (
+                        <motion.div 
+                            key="rejected"
+                            className="claim-rejected-state"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                        >
+                          <h4>❌ Claim Not Approved</h4>
+                          <p>Your proof didn't match. You may try again with better details.</p>
+                          <button className="claim-btn" onClick={() => {
+                            setClaimStatus('none');
+                            setProof('');
+                            setShowClaimModal(true);
+                          }}>
+                            🔄 Try Again
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   )}
-                </AnimatePresence>
+                </>
               )}
 
               {/* Items still LOST → show "Mark as Found" or "I Found This Item!" */}

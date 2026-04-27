@@ -136,17 +136,23 @@ public class ItemService {
 
         item = itemRepository.save(item);
 
-        // If linked to a lost item, mark it as RESOLVED and notify the owner
+        // If linked to a lost item, link it and mark the lost item as RESOLVED, notify the owner
         if (request.getLinkedLostItemId() != null) {
             try {
                 Item lostItem = itemRepository.findById(request.getLinkedLostItemId()).orElse(null);
-                if (lostItem != null && "LOST".equalsIgnoreCase(lostItem.getStatus())) {
-                    lostItem.setStatus("RESOLVED");
-                    itemRepository.save(lostItem);
+                if (lostItem != null) {
+                    // Link the found item back to the original lost item
+                    item.setLinkedLostItem(lostItem);
+                    item = itemRepository.save(item);
 
-                    // Notify the owner of the lost item about the found item
-                    if (lostItem.getReportedBy() != null) {
-                        notificationService.notifyOwnerItemFound(lostItem, item);
+                    if ("LOST".equalsIgnoreCase(lostItem.getStatus())) {
+                        lostItem.setStatus("RESOLVED");
+                        itemRepository.save(lostItem);
+
+                        // Notify the owner of the lost item about the found item
+                        if (lostItem.getReportedBy() != null) {
+                            notificationService.notifyOwnerItemFound(lostItem, item);
+                        }
                     }
                 }
             } catch (Exception e) {

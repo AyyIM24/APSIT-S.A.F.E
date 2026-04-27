@@ -224,6 +224,15 @@
   margin-bottom: 20px;
 }
 
+.admin-sidebar-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-mobile-toggle {
+  display: none; /* Hidden on desktop */
+}
+
 .admin-sidebar-nav {
   list-style: none;
   padding: 0;
@@ -1756,6 +1765,153 @@
   .hiw-features-grid { grid-template-columns: 1fr; }
   .about-team-grid { grid-template-columns: 1fr; }
   .hiw-page, .about-page { padding: 20px 16px 40px; }
-  .hiw-hero h1 { font-size: 2rem; }
 }
 
+/* ============================================================
+   ADMIN DASHBOARD RESPONSIVENESS
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .admin-sidebar-new {
+    width: 220px;
+  }
+  .admin-main-new {
+    margin-left: 220px;
+    padding: 20px;
+  }
+  .admin-stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .admin-chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+  
+  /* Make sidebar a vertical dropdown behind a hamburger toggle on mobile */
+  .admin-sidebar-new {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .admin-sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .admin-sidebar-brand {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding: 0;
+    font-size: 1.1rem;
+    white-space: nowrap;
+  }
+  
+  .admin-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .admin-mobile-toggle:hover {
+    background: rgba(255,255,255,0.2);
+  }
+  
+  .admin-sidebar-nav {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 16px;
+    gap: 8px;
+    animation: slideDown 0.3s ease both;
+  }
+  
+  .admin-sidebar-nav.open {
+    display: flex;
+  }
+  
+  .admin-nav-link {
+    width: 100%;
+    margin-right: 0;
+    padding: 12px 16px;
+    border-radius: 12px;
+  }
+  
+  .logout-link {
+    margin-top: 10px;
+    margin-left: 0;
+  }
+  
+  .admin-main-new {
+    margin-left: 0;
+    padding: 16px;
+  }
+  
+  .admin-topbar {
+    height: auto;
+    padding: 16px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .admin-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .admin-stat-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  /* Horizontal scroll for table */
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .proof-drawer {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-stat-card {
+    padding: 16px;
+  }
+  .admin-stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+  .admin-stat-number {
+    font-size: 1.8rem;
+  }
+  .admin-search-bar {
+    width: 100%;
+  }
+}

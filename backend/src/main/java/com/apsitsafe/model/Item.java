@@ -57,6 +57,12 @@ public class Item {
     @JsonIgnoreProperties({"password", "hibernateLazyInitializer", "handler"})
     private User reportedBy;
 
+    // Links a FOUND item back to the original LOST item (nullable — only set when finder links to a lost report)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "linked_lost_item_id")
+    @JsonIgnoreProperties({"linkedLostItem", "hibernateLazyInitializer", "handler"})
+    private Item linkedLostItem;
+
     @Column(name = "created_at", updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

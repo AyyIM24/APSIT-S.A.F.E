@@ -33,6 +33,13 @@ public class ClaimService {
         Item item = itemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
+        // Prevent the finder from claiming their own found item
+        if (userId != null && item.getReportedBy() != null
+                && "FOUND".equalsIgnoreCase(item.getType())
+                && userId.equals(item.getReportedBy().getId())) {
+            throw new RuntimeException("You cannot claim an item that you reported as found");
+        }
+
         User user = null;
         if (userId != null) {
             user = userRepository.findById(userId).orElse(null);

@@ -1,11 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-/**
- * AdminSidebar — matches hand-drawn prototype exactly:
- * APSIT S.A.F.E branding, then:
- * Dashboard, Lost Items, Found Items, Admins, Categories, Claim Request, Users, Reports, Logout
- */
 const navItems = [
   { path: '/admin',            icon: '🏠', label: 'Dashboard' },
   { path: '/admin/lost',       icon: '📦', label: 'Lost Items' },
@@ -21,19 +16,30 @@ const navItems = [
 const AdminSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <nav className="admin-sidebar-new">
-      <div className="admin-sidebar-brand">
-        <span style={{ fontSize: '1.5rem', marginRight: '8px' }}>🛡️</span>
-        APSIT S.A.F.E
+      <div className="admin-sidebar-header">
+        <div className="admin-sidebar-brand">
+          <span style={{ fontSize: '1.5rem', marginRight: '8px' }}>🛡️</span>
+          <span className="brand-text">APSIT S.A.F.E</span>
+        </div>
+        <button 
+          className="admin-mobile-toggle"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? '✕' : '☰'}
+        </button>
       </div>
-      <ul className="admin-sidebar-nav">
+
+      <ul className={`admin-sidebar-nav ${isMobileMenuOpen ? 'open' : ''}`}>
         {navItems.map((item, idx) => (
           <li key={item.path} className="anim-sidebarLinkStagger" style={{ animationDelay: `${idx * 0.06}s` }}>
             <Link
               to={item.path}
               className={`admin-nav-link ${location.pathname === item.path ? 'active' : ''}`}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               <span className="admin-nav-icon">{item.icon}</span>
               {item.label}
