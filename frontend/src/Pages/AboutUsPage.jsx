@@ -24,7 +24,7 @@ const team = [
         phone: '+91 8080240894',
         image: '/Images/Bishnupriya.jpeg',
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        // imgStyle: { objectPosition: 'center 0%', transform: 'scale(1.5)', transformOrigin: 'top center' }
+        imgStyle: { objectPosition: 'center 0%', transform: 'scale(1.5)', transformOrigin: 'top center' }
     },
     {
         name: 'Drishti Pramod More',
